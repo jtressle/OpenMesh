@@ -15,6 +15,9 @@ template <> struct binary< std::vector< T > > {                 \
   static                                                        \
   size_t store(std::ostream& _os, const value_type& _v, bool _swap=false) { \
     size_t bytes=0;                                             \
+    size_t elems = _v.size();                                   \
+          _os.write(reinterpret_cast<const char*>(&elems),      \
+                    sizeof(size_t));                            \
                                                                 \
     if (_swap)                                                  \
         bytes = std::accumulate( _v.begin(), _v.end(), bytes,   \
@@ -28,6 +31,9 @@ template <> struct binary< std::vector< T > > {                 \
                                                                 \
   static size_t restore(std::istream& _is, value_type& _v, bool _swap=false) { \
     size_t bytes=0;                                             \
+    size_t elems=0;                                             \
+    _is.read(reinterpret_cast<char*>(&elems), sizeof(size_t));  \
+    _v.resize(elems);                                           \
                                                                 \
     if ( _swap)                                                 \
       bytes = std::accumulate( _v.begin(), _v.end(), size_t(0),         \
