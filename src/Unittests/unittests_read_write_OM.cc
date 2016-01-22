@@ -670,4 +670,74 @@ TEST_F(OpenMeshReadWriteOM, ReadBigMeshWithCustomProperty) {
   EXPECT_FALSE(wrong) << "min one vertex has worng vertex property";
 }
 
+/*
+ * Save and load simple mesh with std::vector property
+ */
+TEST_F(OpenMeshReadWriteOM, WriteMeshWithStdVectorProperty) {
+
+  OpenMesh::FPropHandleT<std::vector<double> > faceProp;
+  OpenMesh::VPropHandleT<std::vector<int> > vertexProp;
+  bool ok;
+  const size_t vecSize = 10;
+
+  //generate file
+  mesh_.clear();
+  ok = OpenMesh::IO::read_mesh(mesh_,"cube1.off");
+
+  mesh_.add_property(faceProp, "DFProp");
+  mesh_.property(faceProp).set_persistent(true);
+
+  mesh_.add_property(vertexProp, "IVProp");
+  mesh_.property(vertexProp).set_persistent(true);
+
+
+  for (Mesh::FaceIter fIter = mesh_.faces_begin(); fIter != mesh_.faces_end(); ++fIter)
+    mesh_.property(faceProp,*fIter) = std::vector<double>(vecSize, 0.3);
+
+  for (Mesh::VertexIter vIter = mesh_.vertices_begin(); vIter != mesh_.vertices_end(); ++vIter)
+    mesh_.property(vertexProp,*vIter) = std::vector<int>(vecSize, vIter->idx());
+
+  OpenMesh::IO::write_mesh(mesh_, "cube1_stdvectorProps.om");
+  mesh_.clear();
+
+  //read file
+  Mesh mesh;
+  mesh.add_property(faceProp, "DFProp");
+  mesh.property(faceProp).set_persistent(true);
+
+  mesh.add_property(vertexProp, "IVProp");
+  mesh.property(vertexProp).set_persistent(true);
+
+  ok = OpenMesh::IO::read_mesh(mesh,"cube1_stdvectorProps.om");
+  EXPECT_TRUE(ok) << "Unable to read cube1_stdvectorProps.om";
+
+  ///=============== result ======================
+  EXPECT_EQ(7526u , mesh.n_vertices()) << "The number of loaded vertices is not correct!";
+  EXPECT_EQ(22572u, mesh.n_edges()) << "The number of loaded edges is not correct!";
+  EXPECT_EQ(15048u, mesh.n_faces()) << "The number of loaded faces is not correct!";
+
+  bool wrong = false;
+  for (Mesh::FaceIter fIter = mesh.faces_begin(); fIter != mesh.faces_end() && !wrong; ++fIter) {
+    std::vector<double> dblVec = mesh.property(faceProp,*fIter);
+    EXPECT_EQ(vecSize,dblVec.size()) << "The size of loaded vector for a face is not correct!";
+
+    for (size_t i = 0; i < dblVec.size() && !wrong; i++) {
+      wrong = (0.3 != dblVec[i]);
+    }
+  }
+  EXPECT_FALSE(wrong) << "min one face has wrong face property";
+
+  wrong = false;
+  for (Mesh::VertexIter vIter = mesh.vertices_begin(); vIter != mesh.vertices_end() && !wrong; ++vIter) {
+    std::vector<int> intVec = mesh.property(vertexProp,*vIter);
+    EXPECT_EQ(vecSize,intVec.size()) << "The size of loaded vector for a vertex is not correct!";
+
+    for (size_t i = 0; i < intVec.size() && !wrong; i++) {
+      wrong = (vIter->idx() != intVec[i]);
+    }
+  }
+  EXPECT_FALSE(wrong) << "min one vertex has worng vertex property";
+}
+
+
 }
