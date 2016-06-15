@@ -224,9 +224,6 @@ macos-c++98-test-debug:
 macos-c++11-deploy:
   stage: deploy
   script: "CI/ci-mac-deploy.sh C++11"
-  dependencies:
-    - macos-c++11-build-release
-    - macos-c++11-build-debug   
   artifacts:
     paths:
       - build-release-cpp11/*.dmg
@@ -237,9 +234,6 @@ macos-c++11-deploy:
 macos-c++98-deploy:
   stage: deploy
   script: "CI/ci-mac-deploy.sh C++98"
-  dependencies:
-    - macos-c++98-build-release
-    - macos-c++98-build-debug      
   artifacts:
     paths:
       - build-release-cpp98/*.dmg
