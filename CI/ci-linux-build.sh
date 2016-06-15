@@ -7,7 +7,7 @@ LANGUAGE=$2
 # Exit script on any error
 set -e 
 
-source linux-settings.sh
+source CI/linux-settings.sh
 
 
 echo -e "${OUTPUT}"
