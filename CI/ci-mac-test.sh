@@ -52,25 +52,25 @@ if [ $TYPE = "Release" ]; then
   cd build-release-$BUILDPATH
 
  
-  if [ "$LANGUAGE" == "C++11" ]; then
+#  if [ "$LANGUAGE" == "C++11" ]; then
+#
+#    # Execute Python unittests
+#    cd Python-Unittests
+#
+#    rm -f openmesh.so
+#    cp ../Build/python/openmesh.so .
+#    rm -f libOpenMesh*
+#    cp ../Build/lib/lib* .
+#    export LD_LIBRARY_PATH=../Build/lib:./:../Build/python/
+#    python -m unittest discover -v
+#
+#    cd ..
 
-    # Execute Python unittests
-    cd Python-Unittests
-
-    rm -f openmesh.so
-    cp ../Build/python/openmesh.so .
-    rm -f libOpenMesh*
-    cp ../Build/lib/lib* .
-    export LD_LIBRARY_PATH=../Build/lib:./:../Build/python/
-    python -m unittest discover -v
-
-    cd ..
-
-  else
+#  else
     echo -e "${WARNING}"
-    echo "WARNING! Python unittests disabled for clang on Mac with c++98 !!"
+    echo "WARNING! Python unittests disabled for clang on Mac with c++98 and C++11 !!"
     echo -e "${NC}"
-  fi
+#  fi
  
 
   cd ..
