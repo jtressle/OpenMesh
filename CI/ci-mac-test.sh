@@ -61,7 +61,7 @@ if [ $TYPE = "Release" ]; then
     cp ../Build/python/openmesh.so .
     rm -f libOpenMesh*
     cp ../Build/lib/lib* .
-    export LD_LIBRARY_PATH=../Build/lib;./;../Build/python/
+    export LD_LIBRARY_PATH=../Build/lib:./:../Build/python/
     python -m unittest discover -v
 
     cd ..
