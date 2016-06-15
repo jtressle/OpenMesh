@@ -228,8 +228,9 @@ macos-c++11-deploy:
     - macos-c++11-build-release
     - macos-c++11-build-debug   
   artifacts:
-    - build-release-cpp11/*.dmg
-    - build-release-cpp11/*.tar.gz
+    paths:
+      - build-release-cpp11/*.dmg
+      - build-release-cpp11/*.tar.gz
   tags:
     - Apple
 
@@ -240,8 +241,9 @@ macos-c++98-deploy:
     - macos-c++98-build-release
     - macos-c++98-build-debug      
   artifacts:
-    - build-release-cpp98/*.dmg
-    - build-release-cpp98/*.tar.gz    
+    paths:
+      - build-release-cpp98/*.dmg
+      - build-release-cpp98/*.tar.gz    
   tags:
     - Apple      
      
