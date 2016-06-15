@@ -59,6 +59,7 @@ if [ $TYPE = "Release" ]; then
 
     rm -f openmesh.so
     cp ../Build/python/openmesh.so .
+    export LD_LIBRARY_PATH=../Build/lib;./;../Build/python/
     python -m unittest discover -v
 
     cd ..
@@ -122,6 +123,7 @@ if [ $TYPE = "Debug" ]; then
 
     rm -f openmesh.so
     cp ../Build/python/openmesh.so .
+    export LD_LIBRARY_PATH=../Build/lib
     python -m unittest discover -v
 
     cd ..
