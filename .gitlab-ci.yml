@@ -149,26 +149,102 @@ clang-c++98-test-release:
 
     
     
-    
-    
-    
-macos-c++11:
-  script: "CI/ci-mac.sh C++11"
+macos-c++11-build-release:
+  script: "CI/ci-mac-build.sh C++11 Release"
   tags:
     - Apple
   artifacts:
     paths:
-      - build-release-cpp11/*.dmg
-      - build-release-cpp11/*.tar.gz
+      - build-*
 
-macos-c++98:
-  script: "CI/ci-mac.sh C++98"
+macos-c++98-build-release:
+  script: "CI/ci-mac-build.sh C++98 Release"
   tags:
     - Apple
   artifacts:
     paths:
-      - build-release-cpp98/*.dmg
-      - build-release-cpp98/*.tar.gz
+      - build-* 
+    
+macos-c++11-build-debug:
+  script: "CI/ci-mac-build.sh C++11 Debug"
+  tags:
+    - Apple
+  artifacts:
+    paths:
+      - build-*
+
+macos-c++98-build-debug:
+  script: "CI/ci-mac-build.sh C++98 Debug"
+  tags:
+    - Apple
+  artifacts:
+    paths:
+      - build-*
+
+      
+macos-c++11-test-release:
+  stage: test
+  script: "CI/ci-mac-test.sh C++11 Release"
+  dependencies:
+    - macos-c++11-build-release
+  tags:
+    - Apple
+
+macos-c++98-test-release:
+  stage: test
+  script: "CI/ci-mac-test.sh C++98 Release"
+  dependencies:
+    - macos-c++98-build-release
+  tags:
+    - Apple
+    
+macos-c++11-test-debug:
+  stage: test
+  script: "CI/ci-mac-test.sh C++11 Debug"
+  dependencies:
+    - macos-c++11-build-debug
+  tags:
+    - Apple
+
+macos-c++98-test-debug:
+  stage: test
+  script: "CI/ci-mac-test.sh C++98 Debug"
+  dependencies:
+    - macos-c++98-build-debug
+  tags:
+    - Apple
+   
+   
+   
+   
+macos-c++11-deploy:
+  stage: deploy
+  script: "CI/ci-mac-deploy.sh C++11"
+  dependencies:
+    - macos-c++11-build-release
+    - macos-c++11-build-debug   
+  artifacts:
+    - build-release-cpp11/*.dmg
+    - build-release-cpp11/*.tar.gz
+  tags:
+    - Apple
+
+macos-c++98-deploy:
+  stage: deploy
+  script: "CI/ci-mac-deploy.sh C++98"
+  dependencies:
+    - macos-c++98-build-release
+    - macos-c++98-build-debug      
+  artifacts:
+    - build-release-cpp98/*.dmg
+    - build-release-cpp98/*.tar.gz    
+  tags:
+    - Apple      
+     
+     
+      
+   
+      
 
 cppcheck:
   script: "CI/ci-cppcheck.sh"
