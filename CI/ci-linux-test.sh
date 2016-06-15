@@ -27,6 +27,7 @@ if [ $TYPE = "Release" ]; then
   cd Unittests
 
   #execute tests
+  export LD_LIBRARY_PATH=../Build/lib
   ./unittests --gtest_color=yes --gtest_output=xml
 
   cd ..
@@ -83,6 +84,7 @@ if [ $TYPE = "Debug" ]; then
   cd Unittests
 
   #execute tests
+  export LD_LIBRARY_PATH=../Build/lib
   ./unittests --gtest_color=yes --gtest_output=xml
 
   cd ..
