@@ -150,6 +150,7 @@ clang-c++98-test-release:
     
     
 macos-c++11-build-release:
+  stage: build
   script: "CI/ci-mac-build.sh C++11 Release"
   tags:
     - Apple
@@ -158,6 +159,7 @@ macos-c++11-build-release:
       - build-*
 
 macos-c++98-build-release:
+  stage: build
   script: "CI/ci-mac-build.sh C++98 Release"
   tags:
     - Apple
@@ -166,6 +168,7 @@ macos-c++98-build-release:
       - build-* 
     
 macos-c++11-build-debug:
+  stage: build
   script: "CI/ci-mac-build.sh C++11 Debug"
   tags:
     - Apple
@@ -174,6 +177,7 @@ macos-c++11-build-debug:
       - build-*
 
 macos-c++98-build-debug:
+  stage: build
   script: "CI/ci-mac-build.sh C++98 Debug"
   tags:
     - Apple
