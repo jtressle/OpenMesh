@@ -42,28 +42,32 @@ clang-c++98-build:
 gcc-c++11-test:
   stage: test
   script: "CI/ci-linux-test.sh gcc C++11"
-  dependencies: gcc-c++11-build
+  dependencies: 
+    - gcc-c++11-build
   tags:
     - Linux
 
 clang-c++11-test:
   stage: test
   script: "CI/ci-linux-test.sh clang C++11"
-  dependencies: clang-c++11-build
+  dependencies: 
+    - clang-c++11-build
   tags:
     - Linux
 
 gcc-c++98-test:
   stage: test
   script: "CI/ci-linux-test.sh gcc C++98"
-  dependencies: gcc-c++98-build
+  dependencies: 
+    - gcc-c++98-build
   tags:
     - Linux
 
 clang-c++98-test:
   stage: test
   script: "CI/ci-linux-test.sh clang C++98"
-  dependencies: clang-c++98-build
+  dependencies: 
+    - clang-c++98-build
   tags: 
     - Linux    
 
