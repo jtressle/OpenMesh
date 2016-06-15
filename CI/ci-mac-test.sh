@@ -10,47 +10,65 @@ source CI/mac-settings.sh
 
 
 if [ $TYPE = "Release" ]; then
+
+  
   echo -e "${OUTPUT}"
   echo ""
   echo "======================================================================"
-  echo "Building Release version with vectorchecks enabled"
+  echo "Running unittests Release version with vectorchecks enabled"
   echo "======================================================================"
   echo -e "${NC}"
-
-
+  
+  
   if [ ! -d build-release-$BUILDPATH-Vector-Checks ]; then
-    mkdir build-release-$BUILDPATH-Vector-Checks
+    echo "Unable to find artifacts in  build-release-$BUILDPATH-Vector-Checks "
+    exit 1
   fi
-
+  
   cd build-release-$BUILDPATH-Vector-Checks
 
-  cmake -DCMAKE_BUILD_TYPE=Release -DOPENMESH_BUILD_UNIT_TESTS=TRUE -DSTL_VECTOR_CHECKS=ON -DOPENMESH_BUILD_PYTHON_UNIT_TESTS=OFF $OPTIONS ../
+  cd Unittests
 
-  #build it
-  make
+  #execute tests
+  export LD_LIBRARY_PATH=../Build/lib
+  ./unittests --gtest_color=yes --gtest_output=xml
 
-  #build the unit tests
-  make unittests
-  
   cd ..
+  cd ..
+  
 
   echo -e "${OUTPUT}"
   echo ""
   echo "======================================================================"
-  echo "Building Release version with vectorchecks disabled for python tests"
+  echo "Running Python unittests Release version "
   echo "======================================================================"
   echo -e "${NC}"
 
   if [ ! -d build-release-$BUILDPATH ]; then
-    mkdir build-release-$BUILDPATH
+    echo "Unable to find artifacts in build-release-$BUILDPATH "
+    exit 1
   fi
 
   cd build-release-$BUILDPATH
 
-  cmake -DCMAKE_BUILD_TYPE=Release -DOPENMESH_BUILD_PYTHON_UNIT_TESTS=ON -DBUILD_APPS=OFF -DCPACK_BINARY_DRAGNDROP=ON $OPTIONS ../
+ 
+  if [ "$LANGUAGE" == "C++11" ]; then
 
-  #build it
-  make
+    # Execute Python unittests
+    cd Python-Unittests
+
+    rm -f openmesh.so
+    cp ../Build/python/openmesh.so .
+    python -m unittest discover -v
+
+    cd ..
+
+  else
+    echo -e "${WARNING}"
+    echo "WARNING! Python unittests disabled for clang on Mac with c++98 !!"
+    echo -e "${NC}"
+  fi
+ 
 
   cd ..
 fi
@@ -60,45 +78,61 @@ if [ $TYPE = "Debug" ]; then
   echo -e "${OUTPUT}"
   echo ""
   echo "======================================================================"
-  echo "Building Debug version with vectorchecks enabled"
+  echo "Running unittests Debug version with vectorchecks enabled"
   echo "======================================================================"
   echo -e "${NC}"
-
-
+  
+  
   if [ ! -d build-debug-$BUILDPATH-Vector-Checks ]; then
-    mkdir build-debug-$BUILDPATH-Vector-Checks
+    echo "Unable to find artifacts in  build-debug-$BUILDPATH-Vector-Checks "
+    exit 1
   fi
-
+  
   cd build-debug-$BUILDPATH-Vector-Checks
 
-  cmake -DCMAKE_BUILD_TYPE=Debug -DOPENMESH_BUILD_UNIT_TESTS=TRUE -DSTL_VECTOR_CHECKS=ON -DOPENMESH_BUILD_PYTHON_UNIT_TESTS=OFF $OPTIONS ../
+  cd Unittests
 
-  #build it
-  make
-
-  #build the unit tests
-  make unittests
+  #execute tests
+  export LD_LIBRARY_PATH=../Build/lib
+  ./unittests --gtest_color=yes --gtest_output=xml
 
   cd ..
+  cd ..
+  
 
   echo -e "${OUTPUT}"
   echo ""
   echo "======================================================================"
-  echo "Building Debug version with vectorchecks disabled for python tests"
+  echo "Running Python unittests Debug version "
   echo "======================================================================"
   echo -e "${NC}"
 
   if [ ! -d build-debug-$BUILDPATH ]; then
-    mkdir build-debug-$BUILDPATH
+    echo "Unable to find artifacts in build-debug-$BUILDPATH "
+    exit 1
   fi
 
   cd build-debug-$BUILDPATH
 
-  cmake -DCMAKE_BUILD_TYPE=DEBUG -DOPENMESH_BUILD_PYTHON_UNIT_TESTS=ON -DBUILD_APPS=OFF $OPTIONS ../
+ 
+  if [ "$LANGUAGE" == "C++11" ]; then
 
-  #build it
-  make
-  
+    # Execute Python unittests
+    cd Python-Unittests
+
+    rm -f openmesh.so
+    cp ../Build/python/openmesh.so .
+    python -m unittest discover -v
+
+    cd ..
+
+  else
+    echo -e "${WARNING}"
+    echo "WARNING! Python unittests disabled for clang on Mac with c++98 !!"
+    echo -e "${NC}"
+  fi
+ 
+
   cd ..
 
 fi
