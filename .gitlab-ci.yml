@@ -3,29 +3,65 @@ stages:
   - test
   - deploy
   
-gcc-c++11:
+gcc-c++11-build:
   stage: build
   script: "CI/ci-linux-build.sh gcc C++11"
+  artifacts:
+    paths:
+      - build-*
   tags:
     - Linux
 
-clang-c++11:
+clang-c++11-build:
   stage: build
   script: "CI/ci-linux-build.sh clang C++11"
+  artifacts:
+    paths:
+      - build-*  
   tags:
     - Linux
 
-gcc-c++98:
+gcc-c++98-build:
   stage: build
   script: "CI/ci-linux-build.sh gcc C++98"
+  artifacts:
+    paths:
+      - build-*  
   tags:
     - Linux
 
-clang-c++98:
+clang-c++98-build:
   stage: build
   script: "CI/ci-linux-build.sh clang C++98"
+  artifacts:
+    paths:
+      - build-*  
   tags: 
     - Linux
+    
+gcc-c++11-test:
+  stage: test
+  script: "CI/ci-linux-test.sh gcc C++11"
+  tags:
+    - Linux
+
+clang-c++11-test:
+  stage: test
+  script: "CI/ci-linux-test.sh clang C++11"
+  tags:
+    - Linux
+
+gcc-c++98-test:
+  stage: test
+  script: "CI/ci-linux-test.sh gcc C++98"
+  tags:
+    - Linux
+
+clang-c++98-test:
+  stage: test
+  script: "CI/ci-linux-test.sh clang C++98"
+  tags: 
+    - Linux    
 
 macos-c++11:
   script: "CI/ci-mac.sh C++11"
