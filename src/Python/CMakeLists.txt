@@ -107,7 +107,14 @@ IF(OPENMESH_BUILD_PYTHON_BINDINGS)
 
 						ADD_LIBRARY(openmesh SHARED ${SOURCES})
 
-						install(TARGETS openmesh DESTINATION ${ACG_PROJECT_LIBDIR}/python )
+						if (NOT DEFINED PYTHON_INSTALL_DIR)
+							if (WIN32)
+								set (PYTHON_INSTALL_DIR Lib/site-packages)
+							else ()
+								set (PYTHON_INSTALL_DIR ${ACG_PROJECT_LIBDIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+							endif ()
+						endif ()
+						install (TARGETS openmesh DESTINATION ${PYTHON_INSTALL_DIR})
 
 						TARGET_LINK_LIBRARIES(
 							openmesh
