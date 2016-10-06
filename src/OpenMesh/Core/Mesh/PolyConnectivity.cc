@@ -1020,6 +1020,63 @@ PolyConnectivity::insert_edge(HalfedgeHandle _prev_heh, HalfedgeHandle _next_heh
 //-----------------------------------------------------------------------------
 void PolyConnectivity::triangulate(FaceHandle _fh)
 {
+    int edges = 2;
+
+    HalfedgeHandle he(halfedge_handle(_fh));
+    HalfedgeHandle he_plus1(next_halfedge_handle(he));
+    HalfedgeHandle he_plus2(next_halfedge_handle(he_plus1));
+    HalfedgeHandle he_plus3(next_halfedge_handle(he_plus1));
+
+    while(he!=he_plus1){//count halfedges
+        he_plus1 = next_halfedge_handle(he_plus1);
+        edges++;
+    }
+    he_plus1 = next_halfedge_handle(he);
+
+    while(edges>3){
+        if(/*he_plus1,he_plus2 konkav (TODO)*/true){
+
+            bool intersection = false;
+            HalfedgeHandle he_checkNode(next_halfedge_handle(he_plus2));
+
+            for(int i=edges; i!=3; i--){
+                if(/*to_vertex_handle(he_checkNode) inside triangle (TODO)*/true){
+                    intersection=true;
+                    break;
+                }else{
+                    he_checkNode = next_halfedge_handle(he_checkNode);
+                }
+            }
+            if(!intersection){
+
+                //add new edge to mesh
+                he_plus3 = next_halfedge_handle(he_plus2);
+
+                //adding halfedge inside face
+                HalfedgeHandle new_he_face = new_edge(to_vertex_handle(he), to_vertex_handle(he_plus2));
+                set_next_halfedge_handle(he, new_he_face);
+                set_next_halfedge_handle(new_he_face, he_plus3);
+
+                //adding new triangle and halfedge inside triangle
+                FaceHandle new_fh = new_face();
+                HalfedgeHandle new_he_triangle  = new_edge(to_vertex_handle(he_plus2), to_vertex_handle(he));
+                set_next_halfedge_handle(he_plus2, new_he_triangle);
+                set_next_halfedge_handle(new_he_triangle, he_plus1);
+
+                //TODO: add he_plus1, he_plus2 and new_he_triangle to new_fh
+
+                edges--;
+            }
+        }
+        he = next_halfedge_handle(he);
+        he_plus1 = next_halfedge_handle(he);
+        he_plus1 = next_halfedge_handle(he_plus1);
+    }
+
+    return;
+
+}
+
   /*
     Split an arbitrary face into triangles by connecting
     each vertex of fh after its second to vh.
@@ -1030,7 +1087,7 @@ void PolyConnectivity::triangulate(FaceHandle _fh)
       point to the old halfedges
   */
 
-  HalfedgeHandle base_heh(halfedge_handle(_fh));
+  /*HalfedgeHandle base_heh(halfedge_handle(_fh));
   VertexHandle start_vh = from_vertex_handle(base_heh);
   HalfedgeHandle prev_heh(prev_halfedge_handle(base_heh));
   HalfedgeHandle next_heh(next_halfedge_handle(base_heh));
@@ -1065,7 +1122,7 @@ void PolyConnectivity::triangulate(FaceHandle _fh)
   set_next_halfedge_handle(next_halfedge_handle(next_heh), base_heh);
 
   set_face_handle(base_heh, _fh);
-}
+}*/
 
 //-----------------------------------------------------------------------------
 void PolyConnectivity::triangulate()
