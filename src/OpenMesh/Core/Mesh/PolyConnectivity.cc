@@ -1018,14 +1018,16 @@ PolyConnectivity::insert_edge(HalfedgeHandle _prev_heh, HalfedgeHandle _next_heh
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void PolyConnectivity::triangulate(FaceHandle _fh)
 {
-    int edges = 2;
 
     HalfedgeHandle he(halfedge_handle(_fh));
     HalfedgeHandle he_plus1(next_halfedge_handle(he));
     HalfedgeHandle he_plus2(next_halfedge_handle(he_plus1));
     HalfedgeHandle he_plus3(next_halfedge_handle(he_plus1));
+
+    int edges = 2;
 
     while(he!=he_plus1){//count halfedges
         he_plus1 = next_halfedge_handle(he_plus1);
@@ -1049,43 +1051,31 @@ void PolyConnectivity::triangulate(FaceHandle _fh)
             }
             if(!intersection){
 
-                //add new edge to mesh
                 he_plus3 = next_halfedge_handle(he_plus2);
 
-                //adding halfedge inside face
-                HalfedgeHandle new_he_face = new_edge(to_vertex_handle(he), to_vertex_handle(he_plus2));
-                set_next_halfedge_handle(he, new_he_face);
-                set_next_halfedge_handle(new_he_face, he_plus3);
-                //set_face_handle(new_he_face, _fh);
-
-                //adding new triangle and halfedge inside triangle
                 FaceHandle new_fh = new_face();
                 HalfedgeHandle new_he_triangle  = new_edge(to_vertex_handle(he_plus2), to_vertex_handle(he));
+                HalfedgeHandle new_he_face = new_edge(to_vertex_handle(he), to_vertex_handle(he_plus2));
+
+                copy_all_properties(_fh, new_fh, true);
+                copy_all_properties(he_plus1, new_he_triangle, true);
+                copy_all_properties(he, new_he_face, true);
+
                 set_next_halfedge_handle(he_plus2, new_he_triangle);
                 set_next_halfedge_handle(new_he_triangle, he_plus1);
 
-                //commmit he_plus1, he_plus2 and new_he_triangle to new_fh
-                set_face_handle(he_plus1, new_fh);
-                set_face_handle(he_plus2, new_fh);
-                set_face_handle(new_he_triangle, new_fh);
-
-                copy_all_properties(_fh, new_fh, true);
-                //copy_all_properties(???, new_he_triangle, true);
-                //copy_all_properties(???, new_he_face, true);
-
-                //TODO übergebe new_fh und new_he_triangle
-
+                set_next_halfedge_handle(he, new_he_face);
+                set_next_halfedge_handle(new_he_face, he_plus3);
 
                 edges--;
             }
 
         }
+
         he = next_halfedge_handle(he);
         he_plus1 = next_halfedge_handle(he);
         he_plus1 = next_halfedge_handle(he_plus1);
     }
-
-    //TODO lösche _fh
 
     return;
 

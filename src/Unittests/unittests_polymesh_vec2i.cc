@@ -85,4 +85,57 @@ TEST_F(OpenMeshBasePolyVec2i, Instance_Vec2i_Mesh) {
 
 }
 
+/* Triangulates a polygon
+ */
+TEST_F(OpenMeshBasePolyVec2i, TriangualtePolygon) {
+
+  mesh_.clear();
+
+  // Add some vertices
+  PolyMeshVec2i::VertexHandle vhandle[6];
+
+  vhandle[0] = mesh_.add_vertex(Mesh::Point(0, 0));
+  vhandle[1] = mesh_.add_vertex(Mesh::Point(2, 0));
+  vhandle[2] = mesh_.add_vertex(Mesh::Point(1, 2));
+  vhandle[3] = mesh_.add_vertex(Mesh::Point(2, 4));
+  vhandle[4] = mesh_.add_vertex(Mesh::Point(0, 1));
+  vhandle[5] = mesh_.add_vertex(Mesh::Point(1, 1));
+
+  // Add two faces
+  std::vector<PolyMeshVec2i::VertexHandle> face_vhandles;
+
+  face_vhandles.push_back(vhandle[0]);
+  face_vhandles.push_back(vhandle[1]);
+  face_vhandles.push_back(vhandle[2]);
+  face_vhandles.push_back(vhandle[3]);
+  face_vhandles.push_back(vhandle[4]);
+  face_vhandles.push_back(vhandle[5]);
+
+  mesh_.add_face(face_vhandles);
+  face_vhandles.clear();
+
+
+
+  //TODO: triangulate face
+
+  // Test setup:
+  //        3
+  //       //
+  //      //
+  //     //
+  //    /2
+  //   /  \
+  //  4--5 \
+  //    /   \
+  //  0-----1
+
+
+
+  // Check setup
+  EXPECT_EQ(4u, mesh_.n_faces() )    << "Wrong number of faces";
+
+  //TODO: test if triangualtion works. Following triangles are allowed: 015,125,234,245
+
+}
+
 }
