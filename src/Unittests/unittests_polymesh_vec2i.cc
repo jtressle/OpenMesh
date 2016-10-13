@@ -94,12 +94,12 @@ TEST_F(OpenMeshBasePolyVec2i, TriangualtePolygon) {
   // Add some vertices
   PolyMeshVec2i::VertexHandle vhandle[6];
 
-  vhandle[0] = mesh_.add_vertex(Mesh::Point(0, 0));
-  vhandle[1] = mesh_.add_vertex(Mesh::Point(2, 0));
-  vhandle[2] = mesh_.add_vertex(Mesh::Point(1, 2));
-  vhandle[3] = mesh_.add_vertex(Mesh::Point(2, 4));
-  vhandle[4] = mesh_.add_vertex(Mesh::Point(0, 1));
-  vhandle[5] = mesh_.add_vertex(Mesh::Point(1, 1));
+  vhandle[0] = mesh_.add_vertex(PolyMeshVec2i::Point(0, 0));
+  vhandle[1] = mesh_.add_vertex(PolyMeshVec2i::Point(2, 0));
+  vhandle[2] = mesh_.add_vertex(PolyMeshVec2i::Point(1, 2));
+  vhandle[3] = mesh_.add_vertex(PolyMeshVec2i::Point(2, 4));
+  vhandle[4] = mesh_.add_vertex(PolyMeshVec2i::Point(0, 1));
+  vhandle[5] = mesh_.add_vertex(PolyMeshVec2i::Point(1, 1));
 
   // Add two faces
   std::vector<PolyMeshVec2i::VertexHandle> face_vhandles;
