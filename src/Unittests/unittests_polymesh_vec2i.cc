@@ -87,7 +87,7 @@ TEST_F(OpenMeshBasePolyVec2i, Instance_Vec2i_Mesh) {
 
 /* Triangulates a polygon
  */
-TEST_F(OpenMeshBasePolyVec2i, TriangualtePolygon) {
+TEST_F(OpenMeshBasePolyVec2i, Triangualte2DPolygon) {
 
   mesh_.clear();
 
@@ -111,12 +111,25 @@ TEST_F(OpenMeshBasePolyVec2i, TriangualtePolygon) {
   face_vhandles.push_back(vhandle[4]);
   face_vhandles.push_back(vhandle[5]);
 
-  mesh_.add_face(face_vhandles);
+  PolyMeshVec2i::HalfedgeHandle hedge_vhandles[6];
+  hedge_vhandles[0]= mesh_.halfedge_handle(mesh_.add_face(face_vhandles));  //5-0
+  hedge_vhandles[1]=mesh_.next_halfedge_handle(hedge_vhandles[0]);          //4-5
+  hedge_vhandles[2]=mesh_.next_halfedge_handle(hedge_vhandles[1]);          //3-4
+  hedge_vhandles[3]=mesh_.next_halfedge_handle(hedge_vhandles[2]);          //2-3
+  hedge_vhandles[4]=mesh_.next_halfedge_handle(hedge_vhandles[3]);          //1-2
+  hedge_vhandles[5]=mesh_.next_halfedge_handle(hedge_vhandles[4]);          //0-1
+
+  //mesh_.add_face(face_vhandles);
   face_vhandles.clear();
 
+  if(vhandle[1]==mesh_.to_vertex_handle(hedge_vhandles[0])&&vhandle[0]==mesh_.from_vertex_handle(hedge_vhandles[0])){
+      std::cout<<"!!!Handle returns first edge!!!"<<std::endl;
+  }else if(vhandle[0]==mesh_.to_vertex_handle(hedge_vhandles[0])&&vhandle[5]==mesh_.from_vertex_handle(hedge_vhandles[0])){
+      //std::cout<<"!!!Handle returns last edge!!!"<<std::endl;
+  }else{
+      std::cout<<"!!!Handle returns shit!!!"<<std::endl;
+  }
 
-
-  //TODO: triangulate face
 
   // Test setup:
   //        3
@@ -130,11 +143,31 @@ TEST_F(OpenMeshBasePolyVec2i, TriangualtePolygon) {
   //  0-----1
 
 
+  mesh_.triangulate();
 
-  // Check setup
-  EXPECT_EQ(4u, mesh_.n_faces() )    << "Wrong number of faces";
+  if(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[0]))) == hedge_vhandles[0]
+          && mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[2]))) == hedge_vhandles[2]
+          && mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[3]))) == hedge_vhandles[3]
+          && mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[5]))) == hedge_vhandles[5]){
 
-  //TODO: test if triangualtion works. Following triangles are allowed: 015,125,234,245
+        if(mesh_.next_halfedge_handle(hedge_vhandles[0]) == hedge_vhandles[1]
+          && mesh_.next_halfedge_handle(hedge_vhandles[1]) != hedge_vhandles[2]
+          && mesh_.next_halfedge_handle(hedge_vhandles[2]) != hedge_vhandles[3]
+          && mesh_.next_halfedge_handle(hedge_vhandles[3]) == hedge_vhandles[4]
+          && mesh_.next_halfedge_handle(hedge_vhandles[4]) != hedge_vhandles[5]
+          && mesh_.next_halfedge_handle(hedge_vhandles[5]) != hedge_vhandles[0]){
+
+            EXPECT_TRUE(true);
+        }else{
+            std::cout<<"[          ] bad triangulation"<<std::endl;
+            EXPECT_TRUE(false);
+        }
+
+  }else{
+      std::cout<<"[          ] no triangulation"<<std::endl;
+      EXPECT_TRUE(false);
+  }
+
 
 }
 

@@ -1022,12 +1022,14 @@ PolyConnectivity::insert_edge(HalfedgeHandle _prev_heh, HalfedgeHandle _next_heh
 void PolyConnectivity::triangulate(FaceHandle _fh)
 {
 
+    int edges = 2;
+
     HalfedgeHandle he(halfedge_handle(_fh));
     HalfedgeHandle he_plus1(next_halfedge_handle(he));
     HalfedgeHandle he_plus2(next_halfedge_handle(he_plus1));
-    HalfedgeHandle he_plus3(next_halfedge_handle(he_plus1));
+    HalfedgeHandle he_plus3(next_halfedge_handle(he_plus2));
 
-    int edges = 2;
+    //VertexHandle vh = to_vertex_handle(he);//test
 
     while(he!=he_plus1){//count halfedges
         he_plus1 = next_halfedge_handle(he_plus1);
@@ -1035,37 +1037,44 @@ void PolyConnectivity::triangulate(FaceHandle _fh)
     }
     he_plus1 = next_halfedge_handle(he);
 
+
     while(edges>3){
-        if(/*he_plus1,he_plus2 konkav (TODO)*/true){
+        if(true){//he_plus1,he_plus2 konkav (TODO)
 
             bool intersection = false;
             HalfedgeHandle he_checkNode(next_halfedge_handle(he_plus2));
 
             for(int i=edges; i!=3; i--){
-                if(/*to_vertex_handle(he_checkNode) inside triangle (TODO)*/true){
+                if(false){//to_vertex_handle(he_checkNode) inside triangle (TODO)
                     intersection=true;
                     break;
                 }else{
                     he_checkNode = next_halfedge_handle(he_checkNode);
                 }
             }
-            if(!intersection){
 
-                he_plus3 = next_halfedge_handle(he_plus2);
+
+            if(!intersection){
 
                 FaceHandle new_fh = new_face();
                 HalfedgeHandle new_he_triangle  = new_edge(to_vertex_handle(he_plus2), to_vertex_handle(he));
-                HalfedgeHandle new_he_face = new_edge(to_vertex_handle(he), to_vertex_handle(he_plus2));
+                HalfedgeHandle new_he_face = opposite_halfedge_handle(new_he_triangle);
 
-                copy_all_properties(_fh, new_fh, true);
-                copy_all_properties(he_plus1, new_he_triangle, true);
-                copy_all_properties(he, new_he_face, true);
+                set_halfedge_handle(new_fh, he_plus1);
 
                 set_next_halfedge_handle(he_plus2, new_he_triangle);
                 set_next_halfedge_handle(new_he_triangle, he_plus1);
 
                 set_next_halfedge_handle(he, new_he_face);
                 set_next_halfedge_handle(new_he_face, he_plus3);
+
+                set_face_handle(he_plus1, new_fh);
+                set_face_handle(he_plus2, new_fh);
+                set_face_handle(new_he_triangle, new_fh);
+
+                copy_all_properties(_fh, new_fh, true);
+                copy_all_properties(he_plus1, new_he_triangle, true);
+                copy_all_properties(he, new_he_face, true);
 
                 edges--;
             }
@@ -1074,7 +1083,8 @@ void PolyConnectivity::triangulate(FaceHandle _fh)
 
         he = next_halfedge_handle(he);
         he_plus1 = next_halfedge_handle(he);
-        he_plus1 = next_halfedge_handle(he_plus1);
+        he_plus2 = next_halfedge_handle(he_plus1);
+        he_plus3 = next_halfedge_handle(he_plus2);
     }
 
     return;
