@@ -207,7 +207,7 @@ public:
   {
     size_t idx = rule_sequence_.size();
     rule_sequence_.push_back( new R( mesh_ ) );
-    return RuleHandleT<R>( (idx < rule_sequence_.size()) ? idx : -1 );
+    return RuleHandleT<R>( (idx < rule_sequence_.size()) ? static_cast<int>(idx) : -1 );
   }
 
   /** Add new rule to rule sequence by passing an appropriate handle
