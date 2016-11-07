@@ -85,7 +85,7 @@ namespace Adaptive   { // BEGIN_NS_ADAPTIVE
  */
 struct CompositeTraits : public OpenMesh::DefaultTraits
 {
-  typedef int  state_t; ///< External representation for intermediate state
+  typedef size_t  state_t; ///< External representation for intermediate state
   typedef bool final_t; ///< External representation for final flag
   
   

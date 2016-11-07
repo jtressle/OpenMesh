@@ -187,7 +187,7 @@ public:
 
 
   /// Return subdivision split type (3 for 1-to-3 split, 4 for 1-to-4 split).
-  int subdiv_type() { return subdiv_type_; }
+  size_t subdiv_type() const { return subdiv_type_; }
 
 
   // Return subdivision rule.
@@ -279,7 +279,7 @@ private:
   RuleSequence rule_sequence_;
 
   // Split type
-  int   subdiv_type_;
+  size_t   subdiv_type_;
 
   Rule  *subdiv_rule_;
 //   Rule  *first_rule_; 

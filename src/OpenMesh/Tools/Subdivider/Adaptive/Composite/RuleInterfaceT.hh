@@ -340,11 +340,11 @@ public:
 
 
   /// Type of split operation, if it is a topological operator
-  int  subdiv_type() const { return subdiv_type_; }
+  size_t  subdiv_type() const { return subdiv_type_; }
 
 
   /// Position in rule sequence
-  int  number() const      { return number_;      }
+  size_t  number() const      { return number_;      }
 
   /// \name Parameterization of rule
   //@{
@@ -365,12 +365,12 @@ protected:
   void  set_subdiv_rule(Self*& _n) { subdiv_rule_ = _n; }
   Self* subdiv_rule() { return subdiv_rule_; }
 
-  void set_number(int _n) { number_ = _n; }
+  void set_number(const size_t& _n) { number_ = _n; }
 
-  void set_n_rules(int _n) { n_rules_ = _n; }
-  int  n_rules() { return n_rules_; }
+  void set_n_rules(const size_t& _n) { n_rules_ = _n; }
+  size_t  n_rules() const { return n_rules_; }
 
-  void set_subdiv_type(int _n) 
+  void set_subdiv_type(const size_t _n)
   { assert(_n == 3 || _n == 4); subdiv_type_ = _n; }
 
   friend class CompositeT<M>;
@@ -384,9 +384,9 @@ private:
   Self* prev_rule_;
   Self* subdiv_rule_;
   
-  int   subdiv_type_;
-  int   number_;
-  int   n_rules_;
+  size_t   subdiv_type_;
+  size_t   number_;
+  size_t   n_rules_;
 
   scalar_t coeff_;
 
