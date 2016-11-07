@@ -607,7 +607,7 @@ Tvv4<M>::raise(typename M::FaceHandle& _fh, state_t _target_state)
       MOBJ(new_vh[i]).set_state(_target_state);
       MOBJ(new_vh[i]).set_not_final();
 
-      Base::mesh_.set_point(new_vh[i], (Base::mesh_.point(vh[i]) + Base::mesh_.point(vh[(i + 2) % 3])) * 0.5);
+      Base::mesh_.set_point(new_vh[i], (Base::mesh_.point(vh[i]) + Base::mesh_.point(vh[(i + 2) % 3])) * static_cast<typename M::Point::value_type>(0.5));
 
       MOBJ(Base::mesh_.EH(hh[i])).set_state(_target_state);
       MOBJ(Base::mesh_.EH(hh[i])).set_position(_target_state, zero_point);
@@ -1570,8 +1570,8 @@ VdEc<M>::raise(typename M::EdgeHandle& _eh, state_t _target_state)
 
     position += MOBJ(Base::mesh_.TVH(hh1)).position(_target_state - 1) * c;
     position += MOBJ(Base::mesh_.TVH(hh2)).position(_target_state - 1) * c;
-    position += MOBJ(Base::mesh_.TVH(Base::mesh_.NHEH(hh1))).position(_target_state - 1) * (0.5 - c);
-    position += MOBJ(Base::mesh_.TVH(Base::mesh_.NHEH(hh2))).position(_target_state - 1) * (0.5 - c);
+    position += MOBJ(Base::mesh_.TVH(Base::mesh_.NHEH(hh1))).position(_target_state - 1) * (static_cast<typename M::Point::value_type>(0.5) - c);
+    position += MOBJ(Base::mesh_.TVH(Base::mesh_.NHEH(hh2))).position(_target_state - 1) * (static_cast<typename M::Point::value_type>(0.5) - c);
 
     position /= valence;
 
@@ -1727,10 +1727,10 @@ void EVc<M>::raise(typename M::VertexHandle& _vh, state_t _target_state)
             MOBJ(Base::mesh_.EH(Base::mesh_.NHEH(*voh_it))).final() &&
             MOBJ(Base::mesh_.EH(Base::mesh_.NHEH(*voh_it))).position(_target_state - 1) != zero_point)
         {
-          position += MOBJ(Base::mesh_.EH(Base::mesh_.NHEH(*voh_it))).position(_target_state-1) * (1.0-c);
+          position += MOBJ(Base::mesh_.EH(Base::mesh_.NHEH(*voh_it))).position(_target_state-1) * (static_cast<typename M::Point::value_type>(1.0)-c);
         }
         else {
-          position += MOBJ(Base::mesh_.EH(*voh_it)).position(_target_state - 1) * (1.0 - c);
+          position += MOBJ(Base::mesh_.EH(*voh_it)).position(_target_state - 1) * (static_cast<typename M::Point::value_type>(1.0) - c);
         }
       }
       else {

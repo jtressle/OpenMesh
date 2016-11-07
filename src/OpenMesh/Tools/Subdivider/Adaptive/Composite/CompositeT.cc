@@ -183,11 +183,11 @@ void CompositeT<M>::refine(typename M::FaceHandle& _fh)
   std::vector<typename Mesh::HalfedgeHandle> hh_vector;
 
   // -------------------- calculate new level for faces and vertices
-  int new_face_level =
+  size_t new_face_level =
     t_rule()->number() + 1 +
     ((int)floor((float)(mesh_.data(_fh).state() - t_rule()->number() - 1)/n_rules()) + 1) * n_rules();
 
-  int new_vertex_level =
+  size_t new_vertex_level =
     new_face_level + l_rule()->number() - t_rule()->number();
 
   // -------------------- store old vertices
@@ -282,7 +282,7 @@ template<class M>
 void CompositeT<M>::refine(typename M::VertexHandle& _vh)
 {
   // calculate next final level for vertex
-  int new_vertex_state = generation(_vh) + l_rule()->number() + 1;
+  size_t new_vertex_state = generation(_vh) + l_rule()->number() + 1;
 
   // raise vertex to final position
   l_rule()->raise(_vh, new_vertex_state);
