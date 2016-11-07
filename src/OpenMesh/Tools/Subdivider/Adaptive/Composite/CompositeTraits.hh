@@ -140,21 +140,21 @@ struct CompositeTraits : public OpenMesh::DefaultTraits
     void  set_red_halfedge(const HalfedgeHandle& _h) { red_halfedge_ = _h; }
     
     // position of face, depending on generation _i. 
-    void set_position(const int& _i, const Point& _p) { pos_map_[_i] = _p; }
-    const Point position(const int& _i) { 
+    void set_position(const state_t& _i, const Point& _p) { pos_map_[_i] = _p; }
+    const Point position(const state_t& _i) {
       if (pos_map_.find(_i) != pos_map_.end())
-	return pos_map_[_i];
+        return pos_map_[_i];
       else {
-	
-	if (_i <= 0) {
-	  return Point(0.0, 0.0, 0.0);
-	}
-        
-	return position(_i - 1);
+
+        if (_i <= 0) {
+          return Point(0.0, 0.0, 0.0);
+        }
+
+        return position(_i - 1);
       }
     }
   }; // end class FaceTraits
-  
+
   
   EdgeTraits
   {
@@ -177,28 +177,28 @@ struct CompositeTraits : public OpenMesh::DefaultTraits
     state_t state() const { return state_t(state_.state); }
     void    set_state(const state_t _s) { state_.state = _s; }
     void    inc_state() { ++state_.state; }
-    
+
     // edge not final if dividing face (Loop) or edge not flipped (SQRT(3))
     final_t final() const   { return final_t(state_.final); }
     void    set_final()     { state_.final = true; }
     void    set_not_final() { state_.final = false; }
-    
+
     // position of edge, depending on generation _i. 
-    void set_position(const int& _i, const Point& _p) { pos_map_[_i] = _p; }
-    
-    const Point position(const int& _i) {
-        
+    void set_position(const state_t& _i, const Point& _p) { pos_map_[_i] = _p; }
+
+    const Point position(const state_t& _i) {
+
       if (pos_map_.find(_i) != pos_map_.end()) 
         return pos_map_[_i];
       else 
       {
-	if (_i <= 0) 
-	{
-	  const Point zero_point(0.0, 0.0, 0.0);
-	  return zero_point;
-	}
-        
-	return position(_i - 1);
+        if (_i <= 0)
+        {
+          const Point zero_point(0.0, 0.0, 0.0);
+          return zero_point;
+        }
+
+        return position(_i - 1);
       }
     }
   }; // end class EdgeTraits
@@ -229,22 +229,22 @@ struct CompositeTraits : public OpenMesh::DefaultTraits
     void    set_not_final() { state_.final = false; }
 
     // position of vertex, depending on generation _i. (not for display)
-    void set_position(const int& _i, const Point& _p) { pos_map_[_i] = _p; }
-    const Point position(const int& _i) { 
+    void set_position(const state_t& _i, const Point& _p) { pos_map_[_i] = _p; }
+    const Point position(const state_t& _i) {
 
       if (pos_map_.find(_i) != pos_map_.end()) 
 
-	return pos_map_[_i];
+        return pos_map_[_i];
 
       else {
 
-	if (_i <= 0) {
+        if (_i <= 0) {
 
-	  const Point zero_point(0.0, 0.0, 0.0);
-	  return zero_point;
-	}
+          const Point zero_point(0.0, 0.0, 0.0);
+          return zero_point;
+        }
 
-	return position(_i - 1);
+        return position(_i - 1);
       }
     }
   }; // end class VertexTraits
