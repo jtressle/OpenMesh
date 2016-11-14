@@ -120,8 +120,8 @@ bool TriangulatorT<Mesh>::isKonkav(VertexHandle vh1, VertexHandle vh2, VertexHan
 
 vec2f TriangulatorT<Mesh>::project3dTo2d(vec3f pos, vec3f normal){
 
-    //TODO
-    return vec3f(0.0,0.0,0.0);
+    vec3f projection = pos - (pos | normal) % normal;
+    return vec2f(projection); //x,y are x,y in 2d or x,z?
 }
 
 bool TriangulatorT<Mesh>::triangulateTVec2(FaceHandle& fh_)
@@ -197,8 +197,8 @@ bool TriangulatorT<Mesh>::triangulateTVec3(FaceHandle& fh_)
     triangulateT(fh_, points);
 }
 
-bool TriangulatorT<Mesh>::triangulateT(FaceHandle& fh_, std::map<VertexHandle, vec2f> &points){
-
+bool TriangulatorT<Mesh>::triangulateT(FaceHandle& fh_, std::map<VertexHandle, vec2f> &points)
+{
     int edges = points.size();
 
     HalfedgeHandle he(halfedge_handle(fh_));
