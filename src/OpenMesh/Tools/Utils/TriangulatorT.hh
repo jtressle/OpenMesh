@@ -86,7 +86,9 @@ public:
   ~TrinagulatorT() {}
 
     bool triangulateTVec2(FaceHandle& fh_);
+    bool triangulateTVec2();
     bool triangulateTVec3(FaceHandle& fh_);
+    bool triangulateTVec3();
 
 
 private:

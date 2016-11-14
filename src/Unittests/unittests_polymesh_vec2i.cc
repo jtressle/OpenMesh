@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include <OpenMesh/Tools/Utils/TriangulatorT.hh>
+
 struct CustomTraitsVec2i : OpenMesh::DefaultTraits
 {
     typedef OpenMesh::Vec2i Point;
@@ -143,7 +145,9 @@ TEST_F(OpenMeshBasePolyVec2i, Triangualte2DPolygon) {
   //  0-----1
 
 
-  mesh_.triangulate();
+
+  TriangulatorT(mesh_).triangulateTVec3();
+
 
   if(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[0]))) == hedge_vhandles[0]
           && mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[2]))) == hedge_vhandles[2]

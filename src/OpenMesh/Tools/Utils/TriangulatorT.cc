@@ -124,6 +124,14 @@ vec2f TriangulatorT<Mesh>::project3dTo2d(vec3f pos, vec3f normal){
     return vec2f(projection); //x,y are x,y in 2d or x,z?
 }
 
+bool TriangulatorT<Mesh>::triangulateTVec2(){
+
+
+    //TODO call mesh_.triangulateTVec2(fh) for every face
+    return false;
+}
+
+
 bool TriangulatorT<Mesh>::triangulateTVec2(FaceHandle& fh_)
 {
     HalfedgeHandle he(halfedge_handle(fh_));
@@ -132,15 +140,22 @@ bool TriangulatorT<Mesh>::triangulateTVec2(FaceHandle& fh_)
     std::map<VertexHandle, vec2f> points;
 
     VertexHandle vh = to_vertex_handle(he);
-    points[vh]=vec2f(0.0,0.0);//TODO get position
+    points[vh]=vec2f(mesh_.point(vh));
 
     while(he!=he_iterate){
         vh = to_vertex_handle(he_iterate);
-        points[vh]=vec2f(0.0,0.0);//TODO get position
+        points[vh]=vec2f(mesh_.point(vh));
         he_iterate = next_halfedge_handle(he_iterate);
     }
 
     triangulateT(fh_, points);
+}
+
+bool TriangulatorT<Mesh>::triangulateTVec3(){
+
+
+    //TODO call mesh_.triangulateTVec3(fh) for every face
+    return false;
 }
 
 bool TriangulatorT<Mesh>::triangulateTVec3(FaceHandle& fh_)
@@ -153,14 +168,14 @@ bool TriangulatorT<Mesh>::triangulateTVec3(FaceHandle& fh_)
     std::map<VertexHandle, vec2f> points;
 
     VertexHandle vh = to_vertex_handle(he);
-    points3d[vh]=vec3f(0.0,0.0,0.0);//TODO get position
+    points3d[vh]=vec3f(mesh_.point(vh));
 
     //count halfedges and read points
 
     while(he!=he_iterate)
     {
         vh = to_vertex_handle(he_iterate);
-        points3d[vh]=vec3f(0.0,0.0,0.0);//TODO get position
+        points3d[vh]=vec3f(mesh_.point(vh));
         he_iterate = next_halfedge_handle(he_iterate);
     }
 
