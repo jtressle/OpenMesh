@@ -76,10 +76,18 @@ template <class Mesh>
 class TrinagulatorT
 {
 
+public:
+
+    /// constructor
+    TrinagulatorT(Mesh& _mesh) : mesh_(_mesh) {}
+
+    /// destructor
+    ~TrinagulatorT() {}
+
 private:
 
     // ref to mesh
-    const Mesh& mesh_;
+    Mesh& mesh_;
 
     float sign(OpenMesh::Vec2f p1, OpenMesh::Vec2f p2, OpenMesh::Vec2f p3)
     {
@@ -100,10 +108,9 @@ private:
 
     bool triangleIntersectingVertex(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
     {
-
-        Vec2f p1 = points(vh1);
-        Vec2f p2 = points(vh2);
-        Vec2f p3 = points(vh3);
+        Vec2f p1 = points[vh1];
+        Vec2f p2 = points[vh2];
+        Vec2f p3 = points[vh3];
 
         typedef std::map<VertexHandle, Vec2f>::iterator it_type;
         for(it_type iterator = points.begin(); iterator != points.end(); iterator++) {
@@ -122,8 +129,8 @@ private:
 
     bool isKonkav(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
     {
-        Vec2f v1 = points(vh2)-points(vh1);
-        Vec2f v2 = points(vh3)-points(vh2);
+        Vec2f v1 = points[vh2]-points[vh1];
+        Vec2f v2 = points[vh3]-points[vh2];
         float dot = v1[0]*v2[0] + v1[1]*v2[1]; //dot product
         float det = v1[0]*v2[1] - v1[1]*v2[0]; //determinant
         if(angle = std::atan2(det, dot))return false;
@@ -133,7 +140,7 @@ private:
 
     OpenMesh::Vec2f project3dTo2d(OpenMesh::Vec3f pos, OpenMesh::Vec3f normal)
     {
-        Vec3f projection = pos - cross( dot(pos, normal), normal);
+        Vec3f projection = pos - mesh_.cross( mesh_.dot(pos, normal), normal);
         return Vec2f(projection); //x,y are x,y in 2d or x,z?
     }
 
@@ -141,43 +148,43 @@ private:
     {
         int edges = points.size();
 
-        HalfedgeHandle he(halfedge_handle(fh_));
-        HalfedgeHandle he_plus1(next_halfedge_handle(he));
-        HalfedgeHandle he_plus2(next_halfedge_handle(he_plus1));
-        HalfedgeHandle he_plus3(next_halfedge_handle(he_plus2));
+        HalfedgeHandle he(mesh_.halfedge_handle(fh_));
+        HalfedgeHandle he_plus1(mesh_.next_halfedge_handle(he));
+        HalfedgeHandle he_plus2(mesh_.next_halfedge_handle(he_plus1));
+        HalfedgeHandle he_plus3(mesh_.next_halfedge_handle(he_plus2));
 
         while(edges>3){
-            if(isKonkav(to_vertex_handle(he), to_vertex_handle(he_plus1), to_vertex_handle(he_plus2), points)){
+            if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
 
-                if(!triangleIntersectingVertex(to_vertex_handle(he), to_vertex_handle(he_plus1), to_vertex_handle(he_plus2), points)){
+                if(!triangleIntersectingVertex(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
 
-                    FaceHandle new_fh = new_face();
-                    HalfedgeHandle new_he_triangle  = new_edge(to_vertex_handle(he_plus2), to_vertex_handle(he));
-                    HalfedgeHandle new_he_face = opposite_halfedge_handle(new_he_triangle);
+                    FaceHandle new_fh = mesh_.new_face();
+                    HalfedgeHandle new_he_triangle  = new_edge(mesh_.to_vertex_handle(he_plus2), mesh_.to_vertex_handle(he));
+                    HalfedgeHandle new_he_face = mesh_.opposite_halfedge_handle(new_he_triangle);
 
-                    set_halfedge_handle(new_fh, he_plus1);
+                    mesh_.set_halfedge_handle(new_fh, he_plus1);
 
-                    set_next_halfedge_handle(he_plus2, new_he_triangle);
-                    set_next_halfedge_handle(new_he_triangle, he_plus1);
+                    mesh_.set_next_halfedge_handle(he_plus2, new_he_triangle);
+                    mesh_.set_next_halfedge_handle(new_he_triangle, he_plus1);
 
-                    set_next_halfedge_handle(he, new_he_face);
-                    set_next_halfedge_handle(new_he_face, he_plus3);
+                    mesh_.set_next_halfedge_handle(he, new_he_face);
+                    mesh_.set_next_halfedge_handle(new_he_face, he_plus3);
 
-                    set_face_handle(he_plus1, new_fh);
-                    set_face_handle(he_plus2, new_fh);
-                    set_face_handle(new_he_triangle, new_fh);
+                    mesh_.set_face_handle(he_plus1, new_fh);
+                    mesh_.set_face_handle(he_plus2, new_fh);
+                    mesh_.set_face_handle(new_he_triangle, new_fh);
 
-                    copy_all_properties(fh_, new_fh, true);
-                    copy_all_properties(he_plus1, new_he_triangle, true);
-                    copy_all_properties(he, new_he_face, true);
+                    mesh_.copy_all_properties(fh_, new_fh, true);
+                    mesh_.copy_all_properties(he_plus1, new_he_triangle, true);
+                    mesh_.copy_all_properties(he, new_he_face, true);
 
                     edges--;
                 }
             }
-            he = next_halfedge_handle(he);
-            he_plus1 = next_halfedge_handle(he);
-            he_plus2 = next_halfedge_handle(he_plus1);
-            he_plus3 = next_halfedge_handle(he_plus2);
+            he = mesh_.next_halfedge_handle(he);
+            he_plus1 = mesh_.next_halfedge_handle(he);
+            he_plus2 = mesh_.next_halfedge_handle(he_plus1);
+            he_plus3 = mesh_.next_halfedge_handle(he_plus2);
         }
 
         return;
@@ -185,26 +192,21 @@ private:
 
 public:
 
-  /// constructor
-  TrinagulatorT(const Mesh& _mesh) : mesh_(_mesh) {}
-
-  /// destructor
-  ~TrinagulatorT() {}
 
     bool triangulateTVec2(OpenMesh::FaceHandle& fh_)
     {
-        HalfedgeHandle he(halfedge_handle(fh_));
-        HalfedgeHandle he_iterate(next_halfedge_handle(he));
+        HalfedgeHandle he(mesh_.halfedge_handle(fh_));
+        HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
 
         std::map<VertexHandle, Vec2f> points;
 
-        VertexHandle vh = to_vertex_handle(he);
+        VertexHandle vh = mesh_.to_vertex_handle(he);
         points[vh]=Vec2f(mesh_.point(vh));
 
         while(he!=he_iterate){
-            vh = to_vertex_handle(he_iterate);
+            vh = mesh_.to_vertex_handle(he_iterate);
             points[vh]=Vec2f(mesh_.point(vh));
-            he_iterate = next_halfedge_handle(he_iterate);
+            he_iterate = mesh_.next_halfedge_handle(he_iterate);
         }
 
         triangulateT(fh_, points);
@@ -215,7 +217,7 @@ public:
     bool triangulateTVec2()
     {
         bool ret = true;
-        for (Mesh::FaceIter faceIter = mesh.faces_begin(); faceIter != mesh.faces_end(); ++faceIter) {
+        for (PolyConnectivity::FaceIter faceIter = mesh_.faces_begin(); faceIter != mesh_.faces_end(); ++faceIter) {
             ret = ret && mesh_.triangulateTVec2(*faceIter);
         }
         return ret;
@@ -224,22 +226,22 @@ public:
     bool triangulateTVec3(OpenMesh::FaceHandle& fh_)
     {
 
-        HalfedgeHandle he(halfedge_handle(fh_));
-        HalfedgeHandle he_iterate(next_halfedge_handle(he));
+        HalfedgeHandle he(mesh_.halfedge_handle(fh_));
+        HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
 
         std::map<VertexHandle, Vec3f> points3d;
         std::map<VertexHandle, Vec2f> points;
 
-        VertexHandle vh = to_vertex_handle(he);
+        VertexHandle vh = mesh_.to_vertex_handle(he);
         points3d[vh]=Vec3f(mesh_.point(vh));
 
         //count halfedges and read points
 
         while(he!=he_iterate)
         {
-            vh = to_vertex_handle(he_iterate);
+            vh = mesh_.to_vertex_handle(he_iterate);
             points3d[vh]=Vec3f(mesh_.point(vh));
-            he_iterate = next_halfedge_handle(he_iterate);
+            he_iterate = mesh_.next_halfedge_handle(he_iterate);
         }
 
         //calculate face normal
@@ -282,7 +284,7 @@ public:
     {
         bool ret = true;
 
-        for (Mesh::FaceIter faceIter = mesh.faces_begin(); faceIter != mesh.faces_end(); ++faceIter) {
+        for (PolyConnectivity::FaceIter faceIter = mesh_.faces_begin(); faceIter != mesh_.faces_end(); ++faceIter) {
             ret = ret && mesh_.triangulateTVec3(*faceIter);
         }
         return ret;
