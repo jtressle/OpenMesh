@@ -68,10 +68,10 @@ TEST_F(OpenMeshBasePolyVec3f, Triangualte3DPolygon) {
 
   vhandle[0] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(0.0, 0.0, 0.0));
   vhandle[1] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(2.0, 0.0, 0.0));
-  vhandle[2] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(1.0, 2.0, 0.0));
-  vhandle[3] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(2.0, 4.0, 0.0));
-  vhandle[4] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(0.0, 1.0, 0.0));
-  vhandle[5] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(1.0, 1.0, 0.0));
+  vhandle[2] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(1.0, 0.0, 2.0));
+  vhandle[3] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(2.0, 0.0, 4.1));
+  vhandle[4] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(0.0, 0.0, 1.0));
+  vhandle[5] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(1.0, 0.0, 1.1));
 
   // Add two faces
   std::vector<PolyMeshVec3f::VertexHandle> face_vhandles;

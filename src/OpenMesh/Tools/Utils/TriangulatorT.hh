@@ -142,8 +142,31 @@ private:
 
     OpenMesh::Vec2f project3dTo2d(OpenMesh::Vec3f pos, OpenMesh::Vec3f normal)
     {
-        Vec3f projection = pos - ( dot(pos, normal)* normal);
-        return Vec2f(projection[0],projection[1]); //x,y are x,y in 2d or x,z?
+
+        //lazy 3d to 2d projection by acg:
+        Vec3f axis[3] = { Vec3f(1.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f), normal };
+        // orthonormalize projection axes
+        axis[2].normalize();
+        // make sure first axis is linearly independent from the normal
+        while (std::abs(axis[0] | axis[2]) > 0.95f || (axis[0].sqrnorm() < 0.001f))
+        {
+          for (int i = 0; i < 3; ++i)
+            axis[0][i] = float(rand()) / float(RAND_MAX) * 2.0f - 1.0f;
+
+          axis[0].normalize();
+        }
+        // make axis[0] orthogonal to normal
+        axis[0] = axis[0] - axis[2] * (axis[0] | axis[2]);
+        axis[0].normalize();
+        axis[1] = axis[2] % axis[0];
+
+        std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<< (axis[0] | pos) <<","<< (axis[1] | pos) <<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
+
+        return Vec2f(axis[0] | pos, axis[1] | pos);
+
+        /*Vec3f projection = pos - ((dot(pos, normal)/dot(normal, normal))* normal);//https://www.opengl.org/wiki/Calculating_a_Surface_Normal
+        std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<<projection[0]<<","<<projection[1]<<","<<projection[2]<<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
+        return Vec2f(projection[0],projection[1]);*/
     }
 
     bool triangulateT(OpenMesh::FaceHandle& fh_, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
