@@ -57,6 +57,7 @@
 //#include <OpenMesh/Core/System/config.h>
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 #include <OpenMesh/Core/Mesh/PolyConnectivity.hh>
+#include <algorithm>    // std::for_each
 
 // ------------------------------------------------------------- namespace ----
 
@@ -133,15 +134,16 @@ private:
         Vec2f v2 = points[vh3]-points[vh2];
         float dot = v1[0]*v2[0] + v1[1]*v2[1]; //dot product
         float det = v1[0]*v2[1] - v1[1]*v2[0]; //determinant
-        if(angle = std::atan2(det, dot))return false;
+
+        if(std::atan2(det, dot)<0)return false;
         else return true;
     }
 
 
     OpenMesh::Vec2f project3dTo2d(OpenMesh::Vec3f pos, OpenMesh::Vec3f normal)
     {
-        Vec3f projection = pos - mesh_.cross( mesh_.dot(pos, normal), normal);
-        return Vec2f(projection); //x,y are x,y in 2d or x,z?
+        Vec3f projection = pos - ( dot(pos, normal)* normal);
+        return Vec2f(projection[0],projection[1]); //x,y are x,y in 2d or x,z?
     }
 
     bool triangulateT(OpenMesh::FaceHandle& fh_, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
@@ -159,7 +161,7 @@ private:
                 if(!triangleIntersectingVertex(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
 
                     FaceHandle new_fh = mesh_.new_face();
-                    HalfedgeHandle new_he_triangle  = new_edge(mesh_.to_vertex_handle(he_plus2), mesh_.to_vertex_handle(he));
+                    HalfedgeHandle new_he_triangle  = mesh_.new_edge(mesh_.to_vertex_handle(he_plus2), mesh_.to_vertex_handle(he));
                     HalfedgeHandle new_he_face = mesh_.opposite_halfedge_handle(new_he_triangle);
 
                     mesh_.set_halfedge_handle(new_fh, he_plus1);
@@ -187,13 +189,13 @@ private:
             he_plus3 = mesh_.next_halfedge_handle(he_plus2);
         }
 
-        return;
+        return true;
     }
 
 public:
 
 
-    bool triangulateTVec2(OpenMesh::FaceHandle& fh_)
+    bool triangulateTVec2(OpenMesh::FaceHandle fh_)
     {
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
         HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
@@ -216,14 +218,27 @@ public:
 
     bool triangulateTVec2()
     {
+
         bool ret = true;
-        for (PolyConnectivity::FaceIter faceIter = mesh_.faces_begin(); faceIter != mesh_.faces_end(); ++faceIter) {
-            ret = ret && mesh_.triangulateTVec2(*faceIter);
+
+        std::vector<PolyConnectivity::FaceIter> faces;
+
+        for (PolyConnectivity::FaceIter faceI = mesh_.faces_begin(); faceI != mesh_.faces_end(); ++faceI)
+        {
+            faces.push_back(faceI);
         }
+
+        while(!faces.empty()){
+
+            triangulateTVec2(*(faces.back()));
+            faces.pop_back();
+        }
+
         return ret;
+
     }
 
-    bool triangulateTVec3(OpenMesh::FaceHandle& fh_)
+    bool triangulateTVec3(OpenMesh::FaceHandle fh_)
     {
 
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
@@ -284,9 +299,19 @@ public:
     {
         bool ret = true;
 
-        for (PolyConnectivity::FaceIter faceIter = mesh_.faces_begin(); faceIter != mesh_.faces_end(); ++faceIter) {
-            ret = ret && mesh_.triangulateTVec3(*faceIter);
+        std::vector<PolyConnectivity::FaceIter> faces;
+
+        for (PolyConnectivity::FaceIter faceI = mesh_.faces_begin(); faceI != mesh_.faces_end(); ++faceI)
+        {
+            faces.push_back(faceI);
         }
+
+        while(!faces.empty()){
+
+            triangulateTVec3(*(faces.back()));
+            faces.pop_back();
+        }
+
         return ret;
     }
 

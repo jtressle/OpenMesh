@@ -6,6 +6,18 @@
 #include <OpenMesh/Tools/Utils/TriangulatorT.hh>
 
 
+
+/*struct CustomTraitsVec2i : OpenMesh::DefaultTraits
+{
+    typedef OpenMesh::Vec2i Point;
+};
+
+typedef OpenMesh::PolyMesh_ArrayKernelT<CustomTraitsVec2i> PolyMeshVec2f;*/
+
+
+
+
+
 typedef OpenMesh::PolyMesh_ArrayKernelT<OpenMesh::DefaultTraits> PolyMeshVec3f;
 
 
@@ -14,7 +26,7 @@ typedef OpenMesh::PolyMesh_ArrayKernelT<OpenMesh::DefaultTraits> PolyMeshVec3f;
  * OpenMesh Poly with Vec2i
  */
 
-class OpenMeshBasePolyVec2i : public testing::Test {
+class OpenMeshBasePolyVec3f : public testing::Test {
 
     protected:
 
@@ -47,14 +59,14 @@ namespace {
 
 /* Triangulates a polygon
  */
-TEST_F(OpenMeshBasePolyVec2i, Triangualte2DPolygon) {
+TEST_F(OpenMeshBasePolyVec3f, Triangualte3DPolygon) {
 
   mesh_.clear();
 
   // Add some vertices
   PolyMeshVec3f::VertexHandle vhandle[6];
 
-  vhandle[0] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(2.0, 0.0, 0.0));
+  vhandle[0] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(0.0, 0.0, 0.0));
   vhandle[1] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(2.0, 0.0, 0.0));
   vhandle[2] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(1.0, 2.0, 0.0));
   vhandle[3] = mesh_.add_vertex(PolyMeshVec3f::PolyMeshT::Point(2.0, 4.0, 0.0));

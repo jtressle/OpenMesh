@@ -50,6 +50,8 @@ class OpenMeshAddFacePolyMesh : public OpenMeshBasePoly {
  * ====================================================================
  */
 
+
+
 /* Adds two triangles to a tri mesh
  */
 TEST_F(OpenMeshAddFaceTriangleMesh, AddTrianglesToTrimesh) {
@@ -82,7 +84,7 @@ TEST_F(OpenMeshAddFaceTriangleMesh, AddTrianglesToTrimesh) {
 
   // Test setup:
   //  1 === 2
-  //  |   / |    
+  //  |   / |
   //  |  /  |
   //  | /   |
   //  0 === 3
