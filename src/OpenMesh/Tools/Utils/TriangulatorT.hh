@@ -40,7 +40,7 @@
  * ========================================================================= */
 
 /*===========================================================================*\
- *                                                                           *             
+ *                                                                           *
  *   $Revision$                                                         *
  *   $Date$                   *
  *                                                                           *
@@ -68,7 +68,7 @@ namespace Utils {
 
 //== CLASS DEFINITION =========================================================
 
-	      
+
 /** Trinagulate vec2 and vec3 meshes
  *
  *  -
@@ -140,7 +140,7 @@ private:
     }
 
 
-    OpenMesh::Vec2f project3dTo2d(OpenMesh::Vec3f pos, OpenMesh::Vec3f normal)
+    void project3dTo2d(std::map<VertexHandle, Vec3f> &points3d, std::map<VertexHandle, Vec2f> &points, OpenMesh::Vec3f normal)
     {
 
         //lazy 3d to 2d projection by acg:
@@ -160,9 +160,17 @@ private:
         axis[0].normalize();
         axis[1] = axis[2] % axis[0];
 
-        std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<< (axis[0] | pos) <<","<< (axis[1] | pos) <<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
+        //std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<< (axis[0] | pos) <<","<< (axis[1] | pos) <<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
 
-        return Vec2f(axis[0] | pos, axis[1] | pos);
+
+        typedef std::map<VertexHandle, Vec3f>::iterator it_type;
+        for(it_type iterator = points3d.begin(); iterator != points3d.end(); iterator++)
+        {
+            VertexHandle vh = iterator->first;
+            points[vh] = Vec2f(axis[0] | iterator->second, axis[1] | iterator->second);
+        }
+
+        //return Vec2f(axis[0] | pos, axis[1] | pos);
 
         /*Vec3f projection = pos - ((dot(pos, normal)/dot(normal, normal))* normal);//https://www.opengl.org/wiki/Calculating_a_Surface_Normal
         std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<<projection[0]<<","<<projection[1]<<","<<projection[2]<<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
@@ -268,7 +276,6 @@ public:
         HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
 
         std::map<VertexHandle, Vec3f> points3d;
-        std::map<VertexHandle, Vec2f> points;
 
         VertexHandle vh = mesh_.to_vertex_handle(he);
         points3d[vh]=Vec3f(mesh_.point(vh));
@@ -281,6 +288,8 @@ public:
             points3d[vh]=Vec3f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
         }
+
+        if(points3d.size() <= 3) return true;
 
         //calculate face normal
 
@@ -305,12 +314,9 @@ public:
 
         //project 3d points to 2d
 
-        typedef std::map<VertexHandle, Vec3f>::iterator it_type;
-        for(it_type iterator = points3d.begin(); iterator != points3d.end(); iterator++)
-        {
-            VertexHandle vh = iterator->first;
-            points[vh]=project3dTo2d(iterator->second, normal);
-        }
+        std::map<VertexHandle, Vec2f> points;
+        project3dTo2d(points3d, points, normal);
+
 
         triangulateT(fh_, points);
 
