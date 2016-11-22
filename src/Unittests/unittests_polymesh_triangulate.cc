@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <Unittests/unittests_common.hh>
-
+#include "time.h"
 #include <iostream>
 
 #include <OpenMesh/Tools/Utils/TriangulatorT.hh>
@@ -114,7 +114,11 @@ TEST_F(OpenMeshBasePolyVec3f, Triangualte3DPolygon) {
   //    /   \
   //  0-----1
 
+  clock_t start=clock();
+
   OpenMesh::Utils::TrinagulatorT<PolyMeshVec3f>(mesh_).triangulateTVec3();
+
+  clock_t finish=clock();
 
   if(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[0]))) == hedge_vhandles[0]
           && mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[2]))) == hedge_vhandles[2]
@@ -127,6 +131,8 @@ TEST_F(OpenMeshBasePolyVec3f, Triangualte3DPolygon) {
           && mesh_.next_halfedge_handle(hedge_vhandles[3]) == hedge_vhandles[4]
           && mesh_.next_halfedge_handle(hedge_vhandles[4]) != hedge_vhandles[5]
           && mesh_.next_halfedge_handle(hedge_vhandles[5]) != hedge_vhandles[0]){
+
+            std::cout<<"[          ] triangialtion succeeded in "<<(float)(finish-start)/(CLOCKS_PER_SEC /1000.0 )<<" ms."<<std::endl;
 
             EXPECT_TRUE(true);
         }else{
