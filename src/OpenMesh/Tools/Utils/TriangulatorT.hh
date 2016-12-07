@@ -155,8 +155,9 @@ private:
             axis[0][i] = float(rand()) / float(RAND_MAX) * 2.0f - 1.0f;
 
           axis[0].normalize();
-          maxIter--;
+
           if(maxIter==0)break;
+          maxIter--;
 
         }
         // make axis[0] orthogonal to normal
@@ -223,8 +224,8 @@ private:
             he_plus2 = mesh_.next_halfedge_handle(he_plus1);
             he_plus3 = mesh_.next_halfedge_handle(he_plus2);
 
-            maxIter--;
             if(maxIter==0)return false;
+            maxIter--;
         }
 
         return true;
@@ -248,8 +249,9 @@ public:
             vh = mesh_.to_vertex_handle(he_iterate);
             points[vh]=Vec2f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
-            maxIter--;
+
             if(maxIter==0)return false;
+            maxIter--;
         }
 
         triangulateT(fh_, points);
@@ -297,8 +299,9 @@ public:
             vh = mesh_.to_vertex_handle(he_iterate);
             points3d[vh]=Vec3f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
-            maxIter--;
+
             if(maxIter==0)break;
+            maxIter--;
         }
 
         if(points3d.size() <= 3) return true;
