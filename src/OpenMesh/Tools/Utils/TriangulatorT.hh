@@ -188,6 +188,7 @@ private:
     {
         int edges = points.size();
 
+
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
         HalfedgeHandle he_plus1(mesh_.next_halfedge_handle(he));
         HalfedgeHandle he_plus2(mesh_.next_halfedge_handle(he_plus1));
