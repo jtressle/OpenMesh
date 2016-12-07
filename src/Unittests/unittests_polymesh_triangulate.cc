@@ -116,9 +116,15 @@ TEST_F(OpenMeshBasePolyVec3f, Triangualte3DPolygon) {
 
   clock_t start=clock();
 
-  OpenMesh::Utils::TrinagulatorT<PolyMeshVec3f>(mesh_).triangulateTVec3();
+  bool succeeded = OpenMesh::Utils::TrinagulatorT<PolyMeshVec3f>(mesh_).triangulateTVec3();
 
   clock_t finish=clock();
+
+  if(!succeeded){
+      std::cout<<"[          ] triangulation did not stop!"<<std::endl;
+      EXPECT_TRUE(false);
+      return;
+  }
 
   if(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[0]))) == hedge_vhandles[0]
           && mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(hedge_vhandles[2]))) == hedge_vhandles[2]

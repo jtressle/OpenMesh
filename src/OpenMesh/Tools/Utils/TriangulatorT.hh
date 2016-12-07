@@ -250,15 +250,12 @@ public:
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
         }
 
-        triangulateT(fh_, points);
+        return triangulateT(fh_, points);
 
-        return true;
     }
 
     bool triangulateTVec2()
     {
-
-        bool ret = true;
 
         std::vector<PolyConnectivity::FaceIter> faces;
 
@@ -267,13 +264,15 @@ public:
             faces.push_back(faceI);
         }
 
+        bool succeeded = true;
+
         while(!faces.empty()){
 
-            triangulateTVec2(*(faces.back()));
+            succeeded &= triangulateTVec2(*(faces.back()));
             faces.pop_back();
         }
 
-        return ret;
+        return succeeded;
 
     }
 
@@ -324,17 +323,12 @@ public:
         std::map<VertexHandle, Vec2f> points;
         project3dTo2d(points3d, points, normal);
 
-
-        triangulateT(fh_, points);
-
-        return true;
+        return triangulateT(fh_, points);
     }
 
 
     bool triangulateTVec3()
     {
-        bool ret = true;
-
         std::vector<PolyConnectivity::FaceIter> faces;
 
         for (PolyConnectivity::FaceIter faceI = mesh_.faces_begin(); faceI != mesh_.faces_end(); ++faceI)
@@ -342,13 +336,15 @@ public:
             faces.push_back(faceI);
         }
 
+        bool succeeded = true;
+
         while(!faces.empty()){
 
-            triangulateTVec3(*(faces.back()));
+            succeeded &= triangulateTVec3(*(faces.back()));
             faces.pop_back();
         }
 
-        return ret;
+        return succeeded;
     }
 
 
