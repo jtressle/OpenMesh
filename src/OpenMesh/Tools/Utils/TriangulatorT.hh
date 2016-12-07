@@ -148,7 +148,7 @@ private:
         axis[2].normalize();
         // make sure first axis is linearly independent from the normal
 
-        int maxIter = 10000;
+        int maxIter = 100;
         while (std::abs(axis[0] | axis[2]) > 0.95f || (axis[0].sqrnorm() < 0.001f))
         {
           for (int i = 0; i < 3; ++i)
@@ -244,14 +244,10 @@ public:
         VertexHandle vh = mesh_.to_vertex_handle(he);
         points[vh]=Vec2f(mesh_.point(vh));
 
-        int maxIter = 10000;
         while(he!=he_iterate){
             vh = mesh_.to_vertex_handle(he_iterate);
             points[vh]=Vec2f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
-
-            if(maxIter==0)return false;
-            else maxIter--;
         }
 
         triangulateT(fh_, points);
@@ -293,15 +289,11 @@ public:
         points3d[vh]=Vec3f(mesh_.point(vh));
 
         //count halfedges and read points
-        int maxIter = 10000;
         while(he!=he_iterate)
         {
             vh = mesh_.to_vertex_handle(he_iterate);
             points3d[vh]=Vec3f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
-
-            if(maxIter==0)break;
-            else maxIter--;
         }
 
         if(points3d.size() <= 3) return true;
