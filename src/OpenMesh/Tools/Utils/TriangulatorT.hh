@@ -106,46 +106,35 @@ private:
         return ((b1 == b2) && (b2 == b3));
     }
 
-    bool triangleIntersectingVertex(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
+    bool triangleIntersectingVertex(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, HalfedgeHandle he)
     {
-        Vec2f p1 = points[vh1];
-        Vec2f p2 = points[vh2];
-        Vec2f p3 = points[vh3];
 
-        typedef std::map<VertexHandle, Vec2f>::iterator it_type;
-        for(it_type iterator = points.begin(); iterator != points.end(); iterator++) {
+        VertexHandle vh = mesh_.to_vertex_handle(he);
 
-            VertexHandle vh = iterator->first;
-
-            if(vh!=vh1 && vh!=vh2 && vh!= vh3){
-
-                Vec2f p = iterator->second;
-                if(pointInTriangle(p, p1, p2, p3)) return true;
-            }
+        while(vh != vh1){
+            Vec2f p = mesh_.property(point2D,vh);
+            if(pointInTriangle(p, mesh_.property(point2D,vh1), mesh_.property(point2D,vh2), mesh_.property(point2D,vh3))) return true;
         }
-
         return false;
     }
 
-    bool isKonkav(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
+    bool isKonkav(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3)
     {
-        Vec2f v1 = points[vh2]-points[vh1];
-        Vec2f v2 = points[vh3]-points[vh2];
+        Vec2f v1 = mesh_.property(point2D,vh2)-mesh_.property(point2D,vh1);
+        Vec2f v2 = mesh_.property(point2D,vh3)-mesh_.property(point2D,vh2);
         float dot = v1[0]*v2[0] + v1[1]*v2[1]; //dot product
         float det = v1[0]*v2[1] - v1[1]*v2[0]; //determinant
 
         if(std::atan2(det, dot)<0){
-            std::cout<<"not konkav: v1("<<v1[0]<<","<<v1[1]<<") v2("<<v2[0]<<","<<v2[1]<<")"<<std::endl;
             return false;
         }
         else {
-            std::cout<<"is  konkav: v1("<<v1[0]<<","<<v1[1]<<") v2("<<v2[0]<<","<<v2[1]<<")"<<std::endl;
             return true;
         }
     }
 
 
-    void project3dTo2d(std::map<VertexHandle, Vec3f> &points3d, std::map<VertexHandle, Vec2f> &points, OpenMesh::Vec3f normal)
+    void project3dTo2d(HalfedgeHandle he, uint edges, OpenMesh::Vec3f normal)
     {
 
         //lazy 3d to 2d projection by acg:
@@ -154,7 +143,6 @@ private:
         axis[2].normalize();
         // make sure first axis is linearly independent from the normal
 
-        int maxIter = 100;
         while (std::abs(axis[0] | axis[2]) > 0.95f || (axis[0].sqrnorm() < 0.001f))
         {
           for (int i = 0; i < 3; ++i)
@@ -162,51 +150,38 @@ private:
 
           axis[0].normalize();
 
-          if(maxIter==0){
-              std::cout<<"lazy 3d to 2d projection by acg takes more than 100 iterations!"<<std::endl;
-              break;
-          }else maxIter--;
-
         }
         // make axis[0] orthogonal to normal
         axis[0] = axis[0] - axis[2] * (axis[0] | axis[2]);
         axis[0].normalize();
         axis[1] = axis[2] % axis[0];
 
-        //std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<< (axis[0] | pos) <<","<< (axis[1] | pos) <<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
+        for(uint i = edges; i!=0; i--){
 
+            VertexHandle vh = mesh_.to_vertex_handle(he);
 
-        typedef std::map<VertexHandle, Vec3f>::iterator it_type;
-        for(it_type iterator = points3d.begin(); iterator != points3d.end(); iterator++)
-        {
-            VertexHandle vh = iterator->first;
-            points[vh] = Vec2f(axis[0] | iterator->second, axis[1] | iterator->second);
+            Vec2f projectedPoint = Vec2f(axis[0] | Vec3f(mesh_.point(vh)), axis[1] | Vec3f(mesh_.point(vh)));
+            mesh_.property(point2D,vh) = projectedPoint;//mesh.property(cogs,*vh);
+
+            he = mesh_.next_halfedge_handle(he);
         }
-
-        //return Vec2f(axis[0] | pos, axis[1] | pos);
-
-        /*Vec3f projection = pos - ((dot(pos, normal)/dot(normal, normal))* normal);//https://www.opengl.org/wiki/Calculating_a_Surface_Normal
-        std::cout<<"Project point: "<< pos[0]<<","<<pos[1]<<","<<pos[2]<<" to point "<<projection[0]<<","<<projection[1]<<","<<projection[2]<<" at plane with normal " <<normal[0]<<","<<normal[1]<<","<<normal[2]<<std::endl;
-        return Vec2f(projection[0],projection[1]);*/
     }
 
-    bool triangulateT(OpenMesh::FaceHandle& fh_, std::map<OpenMesh::VertexHandle, OpenMesh::Vec2f> &points)
+    bool triangulateT(OpenMesh::FaceHandle& fh_, uint edges)
     {
-        int edges = points.size();
-
 
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
         HalfedgeHandle he_plus1(mesh_.next_halfedge_handle(he));
         HalfedgeHandle he_plus2(mesh_.next_halfedge_handle(he_plus1));
         HalfedgeHandle he_plus3(mesh_.next_halfedge_handle(he_plus2));
-        int maxIter = edges*edges*edges+10;
+        int maxIter = edges*edges+10;
 
         std::cout<<"Polygon has "<< edges <<" edges."<<std::endl;
 
         while(edges>3){
-            if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
+            if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2))){
 
-                if(!triangleIntersectingVertex(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
+                if(!triangleIntersectingVertex(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), he_plus3)){
 
                     FaceHandle new_fh = mesh_.new_face();
                     HalfedgeHandle new_he_triangle  = mesh_.new_edge(mesh_.to_vertex_handle(he_plus2), mesh_.to_vertex_handle(he));
@@ -248,21 +223,29 @@ public:
 
     bool triangulateTVec2(OpenMesh::FaceHandle fh_)
     {
+        OpenMesh::VPropHandleT<Mesh::Point> point2D;
+        mesh_.add_property(point2D);
+
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
         HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
 
-        std::map<VertexHandle, Vec2f> points;
-
         VertexHandle vh = mesh_.to_vertex_handle(he);
-        points[vh]=Vec2f(mesh_.point(vh));
-
-        while(he!=he_iterate){
+        uint edges = 2;
+        //count halfedges and read points / calculate face normal
+        while(he!=he_iterate)
+        {
             vh = mesh_.to_vertex_handle(he_iterate);
-            points[vh]=Vec2f(mesh_.point(vh));
+            mesh_.property(point2D,vh) = Vec2f(mesh_.point(vh));
+
+            edges++;
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
         }
 
-        return triangulateT(fh_, points);
+        if(edges <= 3) return true;
+
+        //project 3d points to 2d
+
+        return triangulateT(fh_, edges);
 
     }
 
@@ -290,52 +273,41 @@ public:
 
     bool triangulateTVec3(OpenMesh::FaceHandle fh_)
     {
+        OpenMesh::VPropHandleT<Mesh::Point> point2D;
+        mesh_.add_property(point2D);
 
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
         HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
 
-        std::map<VertexHandle, Vec3f> points3d;
-
         VertexHandle vh = mesh_.to_vertex_handle(he);
-        points3d[vh]=Vec3f(mesh_.point(vh));
+        Vec3f lastPoint = Vec3f(mesh_.point(vh));
+        vh = mesh_.to_vertex_handle(he_iterate);
 
-        //count halfedges and read points
+        Vec3f normal = lastPoint % Vec3f(mesh_.point(vh));;
+        lastPoint = Vec3f(mesh_.point(vh));
+
+        uint edges = 2;
+        //count halfedges and read points / calculate face normal
         while(he!=he_iterate)
         {
             vh = mesh_.to_vertex_handle(he_iterate);
-            points3d[vh]=Vec3f(mesh_.point(vh));
+            Vec3f thispoint = Vec3f(mesh_.point(vh));
+            normal += lastPoint % thispoint;
+            lastPoint = thispoint;
+
+            edges++;
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
         }
 
-        if(points3d.size() <= 3) return true;
-
-        //calculate face normal
-
-        Vec3f normal;
-
-        {
-            typedef std::map<VertexHandle, Vec3f>::iterator it_type;
-            it_type iterator = points3d.begin();
-
-            Vec3f lastPoint = iterator->second;
-            iterator++;
-
-            for(iterator; iterator != points3d.end(); iterator++)
-            {
-                Vec3f thispoint = iterator->second;
-                normal += lastPoint % thispoint;
-                lastPoint = thispoint;
-            }
-
-            normal += lastPoint % points3d.begin()->second;
-        }
+        vh = mesh_.to_vertex_handle(he);
+        normal += lastPoint % Vec3f(mesh_.point(vh));
+        if(edges <= 3) return true;
 
         //project 3d points to 2d
 
-        std::map<VertexHandle, Vec2f> points;
-        project3dTo2d(points3d, points, normal);
+        project3dTo2d(he, edges, normal);
 
-        return triangulateT(fh_, points);
+        return triangulateT(fh_, edges);
     }
 
 
