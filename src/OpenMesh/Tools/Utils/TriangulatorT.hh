@@ -156,8 +156,10 @@ private:
 
           axis[0].normalize();
 
-          if(maxIter==0)break;
-          else maxIter--;
+          if(maxIter==0){
+              std::cout<<"lazy 3d to 2d projection by acg takes more than 100 iterations!"<<std::endl;
+              break;
+          }else maxIter--;
 
         }
         // make axis[0] orthogonal to normal
@@ -191,6 +193,9 @@ private:
         HalfedgeHandle he_plus2(mesh_.next_halfedge_handle(he_plus1));
         HalfedgeHandle he_plus3(mesh_.next_halfedge_handle(he_plus2));
         int maxIter = edges*edges*edges+10;
+
+        std::cout<<"Polygon has "<< edges <<" edges."<<std::endl;
+
         while(edges>3){
             if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
 
