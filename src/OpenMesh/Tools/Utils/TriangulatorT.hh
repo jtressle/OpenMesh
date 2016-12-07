@@ -134,8 +134,14 @@ private:
         float dot = v1[0]*v2[0] + v1[1]*v2[1]; //dot product
         float det = v1[0]*v2[1] - v1[1]*v2[0]; //determinant
 
-        if(std::atan2(det, dot)<0)return false;
-        else return true;
+        if(std::atan2(det, dot)<0){
+            std::cout<<"not konkav: v1("<<v1[0]<<","<<v1[1]<<") v2("<<v2[0]<<","<<v2[1]<<")"<<std::endl;
+            return false;
+        }
+        else {
+            std::cout<<"is  konkav: v1("<<v1[0]<<","<<v1[1]<<") v2("<<v2[0]<<","<<v2[1]<<")"<<std::endl;
+            return true;
+        }
     }
 
 
