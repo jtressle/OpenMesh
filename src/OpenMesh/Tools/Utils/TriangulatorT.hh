@@ -148,7 +148,7 @@ private:
         axis[2].normalize();
         // make sure first axis is linearly independent from the normal
 
-        uint maxIter = 10000;
+        int maxIter = 10000;
         while (std::abs(axis[0] | axis[2]) > 0.95f || (axis[0].sqrnorm() < 0.001f))
         {
           for (int i = 0; i < 3; ++i)
@@ -157,7 +157,7 @@ private:
           axis[0].normalize();
 
           if(maxIter==0)break;
-          maxIter--;
+          else maxIter--;
 
         }
         // make axis[0] orthogonal to normal
@@ -190,7 +190,7 @@ private:
         HalfedgeHandle he_plus1(mesh_.next_halfedge_handle(he));
         HalfedgeHandle he_plus2(mesh_.next_halfedge_handle(he_plus1));
         HalfedgeHandle he_plus3(mesh_.next_halfedge_handle(he_plus2));
-        uint maxIter = edges*edges*edges+10;
+        int maxIter = edges*edges*edges+10;
         while(edges>3){
             if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
 
@@ -225,7 +225,7 @@ private:
             he_plus3 = mesh_.next_halfedge_handle(he_plus2);
 
             if(maxIter==0)return false;
-            maxIter--;
+            else maxIter--;
         }
 
         return true;
@@ -244,14 +244,14 @@ public:
         VertexHandle vh = mesh_.to_vertex_handle(he);
         points[vh]=Vec2f(mesh_.point(vh));
 
-        uint maxIter = 10000;
+        int maxIter = 10000;
         while(he!=he_iterate){
             vh = mesh_.to_vertex_handle(he_iterate);
             points[vh]=Vec2f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
 
             if(maxIter==0)return false;
-            maxIter--;
+            else maxIter--;
         }
 
         triangulateT(fh_, points);
@@ -293,7 +293,7 @@ public:
         points3d[vh]=Vec3f(mesh_.point(vh));
 
         //count halfedges and read points
-        uint maxIter = 10000;
+        int maxIter = 10000;
         while(he!=he_iterate)
         {
             vh = mesh_.to_vertex_handle(he_iterate);
@@ -301,7 +301,7 @@ public:
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
 
             if(maxIter==0)break;
-            maxIter--;
+            else maxIter--;
         }
 
         if(points3d.size() <= 3) return true;
