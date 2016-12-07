@@ -46,7 +46,6 @@
  *                                                                           *
 \*===========================================================================*/
 
-
 #ifndef OPENMESH_TRIANGUALTORT_HH
 #define OPENMESH_TRIANGUALTORT_HH
 
@@ -148,12 +147,17 @@ private:
         // orthonormalize projection axes
         axis[2].normalize();
         // make sure first axis is linearly independent from the normal
+
+        uint maxIter = 10000;
         while (std::abs(axis[0] | axis[2]) > 0.95f || (axis[0].sqrnorm() < 0.001f))
         {
           for (int i = 0; i < 3; ++i)
             axis[0][i] = float(rand()) / float(RAND_MAX) * 2.0f - 1.0f;
 
           axis[0].normalize();
+          maxIter--;
+          if(maxIter==0)break;
+
         }
         // make axis[0] orthogonal to normal
         axis[0] = axis[0] - axis[2] * (axis[0] | axis[2]);
@@ -185,7 +189,7 @@ private:
         HalfedgeHandle he_plus1(mesh_.next_halfedge_handle(he));
         HalfedgeHandle he_plus2(mesh_.next_halfedge_handle(he_plus1));
         HalfedgeHandle he_plus3(mesh_.next_halfedge_handle(he_plus2));
-
+        uint maxIter = edges*edges*edges+10;
         while(edges>3){
             if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), points)){
 
@@ -218,6 +222,9 @@ private:
             he_plus1 = mesh_.next_halfedge_handle(he);
             he_plus2 = mesh_.next_halfedge_handle(he_plus1);
             he_plus3 = mesh_.next_halfedge_handle(he_plus2);
+
+            maxIter--;
+            if(maxIter==0)return false;
         }
 
         return true;
@@ -236,10 +243,13 @@ public:
         VertexHandle vh = mesh_.to_vertex_handle(he);
         points[vh]=Vec2f(mesh_.point(vh));
 
+        uint maxIter = 10000;
         while(he!=he_iterate){
             vh = mesh_.to_vertex_handle(he_iterate);
             points[vh]=Vec2f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
+            maxIter--;
+            if(maxIter==0)return false;
         }
 
         triangulateT(fh_, points);
@@ -281,12 +291,14 @@ public:
         points3d[vh]=Vec3f(mesh_.point(vh));
 
         //count halfedges and read points
-
+        uint maxIter = 10000;
         while(he!=he_iterate)
         {
             vh = mesh_.to_vertex_handle(he_iterate);
             points3d[vh]=Vec3f(mesh_.point(vh));
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
+            maxIter--;
+            if(maxIter==0)break;
         }
 
         if(points3d.size() <= 3) return true;
