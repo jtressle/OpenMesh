@@ -102,9 +102,9 @@ private:
     {
         bool b1, b2, b3;
 
-        b1 = sign(pt, v1, v2) < 0.0f;
-        b2 = sign(pt, v2, v3) < 0.0f;
-        b3 = sign(pt, v3, v1) < 0.0f;
+        b1 = (sign(pt, v1, v2) < 0.0);
+        b2 = (sign(pt, v2, v3) < 0.0);
+        b3 = (sign(pt, v3, v1) < 0.0);
 
         return ((b1 == b2) && (b2 == b3));
     }
@@ -113,10 +113,14 @@ private:
     {
 
         VertexHandle vh = mesh_.to_vertex_handle(he);
+        HalfedgeHandle it = mesh_.next_halfedge_handle(he);
 
-        while(vh != vh1){
+        while(he != it){
             Vec2 p = mesh_.property(point2D,vh);
             if(pointInTriangle(p, mesh_.property(point2D,vh1), mesh_.property(point2D,vh2), mesh_.property(point2D,vh3))) return true;
+
+            vh = mesh_.to_vertex_handle(it);
+            it =  mesh_.next_halfedge_handle(it);
         }
         return false;
     }
@@ -168,6 +172,7 @@ private:
             mesh_.property(point2D,vh) = projectedPoint;
 
             he = mesh_.next_halfedge_handle(he);
+
         }
     }
 
@@ -181,12 +186,9 @@ private:
         int maxIter = edges*edges+10;
 
         std::cout<<"Polygon has "<< edges <<" edges."<<std::endl;
-
         while(edges>3){
             if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), point2D)){
-
                 if(!triangleIntersectingVertex(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), he_plus3, point2D)){
-
                     FaceHandle new_fh = mesh_.new_face();
                     HalfedgeHandle new_he_triangle  = mesh_.new_edge(mesh_.to_vertex_handle(he_plus2), mesh_.to_vertex_handle(he));
                     HalfedgeHandle new_he_face = mesh_.opposite_halfedge_handle(new_he_triangle);
@@ -248,9 +250,11 @@ public:
 
         if(edges <= 3) return true;
 
-        //project 3d points to 2d
+        bool ret = triangulateT(fh_, edges, point2D);
 
-        return triangulateT(fh_, edges, point2D);
+        mesh_.remove_property(point2D);
+
+        return ret;
 
     }
 
@@ -311,7 +315,12 @@ public:
         //project 3d points to 2d
         project3dTo2d(he, edges, normal, point2D);
 
-        return triangulateT(fh_, edges, point2D);
+        bool ret = triangulateT(fh_, edges, point2D);
+
+        mesh_.remove_property(point2D);
+
+        return ret;
+
     }
 
 
