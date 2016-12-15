@@ -56,7 +56,6 @@
 //#include <OpenMesh/Core/System/config.h>
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 #include <OpenMesh/Core/Mesh/PolyConnectivity.hh>
-#include <algorithm>    // std::for_each
 
 // ------------------------------------------------------------- namespace ----
 
@@ -102,9 +101,9 @@ private:
     {
         bool b1, b2, b3;
 
-        b1 = (sign(pt, v1, v2) <= 0.0);
-        b2 = (sign(pt, v2, v3) <= 0.0);
-        b3 = (sign(pt, v3, v1) <= 0.0);
+        b1 = (sign(pt, v1, v2) < 0.0);
+        b2 = (sign(pt, v2, v3) < 0.0);
+        b3 = (sign(pt, v3, v1) < 0.0);
 
         return ((b1 == b2) && (b2 == b3));
     }
@@ -113,14 +112,12 @@ private:
     {
 
         VertexHandle vh = mesh_.to_vertex_handle(he);
-        HalfedgeHandle it = mesh_.next_halfedge_handle(he);
 
-        while(he != it){
+        while(vh != vh1){
             Vec2 p = mesh_.property(point2D,vh);
             if(pointInTriangle(p, mesh_.property(point2D,vh1), mesh_.property(point2D,vh2), mesh_.property(point2D,vh3))) return true;
-
-            vh = mesh_.to_vertex_handle(it);
-            it =  mesh_.next_halfedge_handle(it);
+            he =  mesh_.next_halfedge_handle(he);
+            vh = mesh_.to_vertex_handle(he);
         }
         return false;
     }
