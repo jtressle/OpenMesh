@@ -56,6 +56,7 @@
 //#include <OpenMesh/Core/System/config.h>
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 #include <OpenMesh/Core/Mesh/PolyConnectivity.hh>
+#include <algorithm>    // std::for_each
 
 // ------------------------------------------------------------- namespace ----
 
