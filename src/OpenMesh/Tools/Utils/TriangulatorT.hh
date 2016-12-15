@@ -86,15 +86,19 @@ public:
 
 private:
 
+    typedef VectorT<typename Mesh::Point::value_type,3> Vec3;
+    typedef VectorT<typename Mesh::Point::value_type,2> Vec2;
+
     // ref to mesh
     Mesh& mesh_;
-    float sign(OpenMesh::Vec2f p1, OpenMesh::Vec2f p2, OpenMesh::Vec2f p3)
+
+    float sign(Vec2 p1, Vec2 p2, Vec2 p3)
     {
         return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1]);
     }
 
 
-    bool pointInTriangle(OpenMesh::Vec2f pt, OpenMesh::Vec2f v1, OpenMesh::Vec2f v2, OpenMesh::Vec2f v3)
+    bool pointInTriangle(Vec2 pt, Vec2 v1, Vec2 v2, Vec2 v3)
     {
         bool b1, b2, b3;
 
@@ -105,22 +109,23 @@ private:
         return ((b1 == b2) && (b2 == b3));
     }
 
-    bool triangleIntersectingVertex(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, HalfedgeHandle he, OpenMesh::VPropHandleT<typename Mesh::Point> point2D)
+    bool triangleIntersectingVertex(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, HalfedgeHandle he, OpenMesh::VPropHandleT<Vec2> point2D)
     {
 
         VertexHandle vh = mesh_.to_vertex_handle(he);
 
         while(vh != vh1){
-            Vec2f p = mesh_.property(point2D,vh);
+            Vec2 p = mesh_.property(point2D,vh);
             if(pointInTriangle(p, mesh_.property(point2D,vh1), mesh_.property(point2D,vh2), mesh_.property(point2D,vh3))) return true;
         }
         return false;
     }
 
-    bool isKonkav(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, OpenMesh::VPropHandleT<typename Mesh::Point> point2D)
-    {       
-        Vec2f v1 = mesh_.property(point2D,vh2)-mesh_.property(point2D,vh1);
-        Vec2f v2 = mesh_.property(point2D,vh3)-mesh_.property(point2D,vh2);
+    bool isKonkav(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, OpenMesh::VPropHandleT<Vec2> point2D)
+    {
+
+        Vec2 v1 = mesh_.property(point2D,vh2)-mesh_.property(point2D,vh1);
+        Vec2 v2 = mesh_.property(point2D,vh3)-mesh_.property(point2D,vh2);
         float dot = v1[0]*v2[0] + v1[1]*v2[1]; //dot product
         float det = v1[0]*v2[1] - v1[1]*v2[0]; //determinant
 
@@ -133,11 +138,11 @@ private:
     }
 
 
-    void project3dTo2d(HalfedgeHandle he, uint edges, OpenMesh::Vec3f normal, OpenMesh::VPropHandleT<typename Mesh::Point> point2D)
+    void project3dTo2d(HalfedgeHandle he, uint edges, Vec3 normal, OpenMesh::VPropHandleT<Vec2> point2D)
     {
 
         //lazy 3d to 2d projection by acg:
-        Vec3f axis[3] = { Vec3f(1.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f), normal };
+        Vec3 axis[3] = { Vec3(1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), normal };
         // orthonormalize projection axes
         axis[2].normalize();
         // make sure first axis is linearly independent from the normal
@@ -159,14 +164,14 @@ private:
 
             VertexHandle vh = mesh_.to_vertex_handle(he);
 
-            Vec2f projectedPoint = Vec2f(axis[0] | Vec3f(mesh_.point(vh)), axis[1] | Vec3f(mesh_.point(vh)));
+            Vec2 projectedPoint = Vec2(axis[0] | Vec3(mesh_.point(vh)), axis[1] | Vec3(mesh_.point(vh)));
             mesh_.property(point2D,vh) = projectedPoint;
 
             he = mesh_.next_halfedge_handle(he);
         }
     }
 
-    bool triangulateT(OpenMesh::FaceHandle& fh_, uint edges, OpenMesh::VPropHandleT<typename Mesh::Point> point2D)
+    bool triangulateT(OpenMesh::FaceHandle& fh_, uint edges, OpenMesh::VPropHandleT<Vec2> point2D)
     {
 
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
@@ -235,7 +240,7 @@ public:
         while(he!=he_iterate)
         {
             vh = mesh_.to_vertex_handle(he_iterate);
-            mesh_.property(point2D,vh) = Vec2f(mesh_.point(vh));
+            mesh_.property(point2D,vh) = mesh_.point(vh);
 
             edges++;
             he_iterate = mesh_.next_halfedge_handle(he_iterate);
@@ -273,25 +278,25 @@ public:
 
     bool triangulateTVec3(OpenMesh::FaceHandle fh_)
     {
-        OpenMesh::VPropHandleT<typename Mesh::Point> point2D;
+        OpenMesh::VPropHandleT<Vec2> point2D;
         mesh_.add_property(point2D);
 
         HalfedgeHandle he(mesh_.halfedge_handle(fh_));
         HalfedgeHandle he_iterate(mesh_.next_halfedge_handle(he));
 
         VertexHandle vh = mesh_.to_vertex_handle(he);
-        Vec3f lastPoint = Vec3f(mesh_.point(vh));
+        Vec3 lastPoint = mesh_.point(vh);
         vh = mesh_.to_vertex_handle(he_iterate);
 
-        Vec3f normal = lastPoint % Vec3f(mesh_.point(vh));;
-        lastPoint = Vec3f(mesh_.point(vh));
+        Vec3 normal = lastPoint % mesh_.point(vh);;
+        lastPoint = mesh_.point(vh);
 
         uint edges = 2;
         //count halfedges and read points / calculate face normal
         while(he!=he_iterate)
         {
             vh = mesh_.to_vertex_handle(he_iterate);
-            Vec3f thispoint = Vec3f(mesh_.point(vh));
+            Vec3 thispoint = mesh_.point(vh);
             normal += lastPoint % thispoint;
             lastPoint = thispoint;
 
@@ -300,11 +305,10 @@ public:
         }
 
         vh = mesh_.to_vertex_handle(he);
-        normal += lastPoint % Vec3f(mesh_.point(vh));
+        normal += lastPoint % mesh_.point(vh);
         if(edges <= 3) return true;
 
         //project 3d points to 2d
-
         project3dTo2d(he, edges, normal, point2D);
 
         return triangulateT(fh_, edges, point2D);
@@ -339,7 +343,3 @@ public:
 }} //namespaces
 #endif
 //=============================================================================
-
-
-//typename Mesh::Point::value_type
-
