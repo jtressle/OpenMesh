@@ -102,9 +102,9 @@ private:
     {
         bool b1, b2, b3;
 
-        b1 = (sign(pt, v1, v2) < 0.0);
-        b2 = (sign(pt, v2, v3) < 0.0);
-        b3 = (sign(pt, v3, v1) < 0.0);
+        b1 = (sign(pt, v1, v2) <= 0.0);
+        b2 = (sign(pt, v2, v3) <= 0.0);
+        b3 = (sign(pt, v3, v1) <= 0.0);
 
         return ((b1 == b2) && (b2 == b3));
     }
@@ -185,7 +185,7 @@ private:
         HalfedgeHandle he_plus3(mesh_.next_halfedge_handle(he_plus2));
         int maxIter = edges*edges+10;
 
-        std::cout<<"Polygon has "<< edges <<" edges."<<std::endl;
+        //std::cout<<"Polygon has "<< edges <<" edges."<<std::endl;
         while(edges>3){
             if(isKonkav(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), point2D)){
                 if(!triangleIntersectingVertex(mesh_.to_vertex_handle(he), mesh_.to_vertex_handle(he_plus1), mesh_.to_vertex_handle(he_plus2), he_plus3, point2D)){
