@@ -52,11 +52,8 @@
 
 //== INCLUDES =================================================================
 
-
-//#include <OpenMesh/Core/System/config.h>
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 #include <OpenMesh/Core/Mesh/PolyConnectivity.hh>
-#include <algorithm>    // std::for_each
 
 // ------------------------------------------------------------- namespace ----
 
@@ -320,7 +317,7 @@ public:
         //project 3d points to 2d
 
         if(normal[0]+normal[1]+normal[2]<=0){
-            normal[2]=1;//makes triangualtion of holes withoutsurface solvable
+            normal[2]=1;//makes triangualtion of holes without surface solvable
         }
 
         project3dTo2d(he, edges, normal, point2D);

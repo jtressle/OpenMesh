@@ -10,7 +10,7 @@ struct CustomTraitsVec2i : OpenMesh::DefaultTraits
 
 
 
-typedef OpenMesh::PolyMesh_ArrayKernelT<CustomTraitsVec2i> PolyMeshVec2f;
+typedef OpenMesh::PolyMesh_ArrayKernelT<CustomTraitsVec2i> PolyMeshVec2i;
 
 
 
@@ -35,7 +35,7 @@ class OpenMeshBasePolyVec2i : public testing::Test {
         }
 
     // This member will be accessible in all tests
-   PolyMeshVec2f mesh_;
+   PolyMeshVec2i mesh_;
 };
 
 
@@ -57,14 +57,14 @@ TEST_F(OpenMeshBasePolyVec2i, Instance_Vec2i_Mesh) {
   mesh_.clear();
 
   // Add some vertices
-  PolyMeshVec2f::VertexHandle vhandle[4];
+  PolyMeshVec2i::VertexHandle vhandle[4];
 
-  vhandle[0] = mesh_.add_vertex(PolyMeshVec2f::Point(0, 0));
-  vhandle[1] = mesh_.add_vertex(PolyMeshVec2f::Point(0, 1));
-  vhandle[2] = mesh_.add_vertex(PolyMeshVec2f::Point(1, 1));
+  vhandle[0] = mesh_.add_vertex(PolyMeshVec2i::Point(0, 0));
+  vhandle[1] = mesh_.add_vertex(PolyMeshVec2i::Point(0, 1));
+  vhandle[2] = mesh_.add_vertex(PolyMeshVec2i::Point(1, 1));
 
   // Add face
-  std::vector<PolyMeshVec2f::VertexHandle> face_vhandles;
+  std::vector<PolyMeshVec2i::VertexHandle> face_vhandles;
 
   face_vhandles.push_back(vhandle[0]);
   face_vhandles.push_back(vhandle[1]);
