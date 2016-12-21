@@ -52,8 +52,8 @@
 
 //== INCLUDES =================================================================
 
-#include <OpenMesh/Core/Geometry/VectorT.hh>
-#include <OpenMesh/Core/Mesh/PolyConnectivity.hh>
+//#include <OpenMesh/Core/Geometry/VectorT.hh>
+//#include <OpenMesh/Core/Mesh/PolyConnectivity.hh>
 
 // ------------------------------------------------------------- namespace ----
 

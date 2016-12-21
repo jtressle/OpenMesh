@@ -6,18 +6,6 @@
 #include <OpenMesh/Tools/Utils/TriangulatorT.hh>
 
 
-
-/*struct CustomTraitsVec2i : OpenMesh::DefaultTraits
-{
-    typedef OpenMesh::Vec2i Point;
-};
-
-typedef OpenMesh::PolyMesh_ArrayKernelT<CustomTraitsVec2i> PolyMeshVec2f;*/
-
-
-
-
-
 typedef OpenMesh::PolyMesh_ArrayKernelT<OpenMesh::DefaultTraits> PolyMeshVec3f;
 
 
