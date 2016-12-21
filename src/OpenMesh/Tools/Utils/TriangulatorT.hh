@@ -102,11 +102,13 @@ private:
     {
         bool b1, b2, b3;
 
-        b1 = (sign(pt, v1, v2) < 0.0);
-        b2 = (sign(pt, v2, v3) < 0.0);
-        b3 = (sign(pt, v3, v1) < 0.0);
+        b1 = (sign(pt, v1, v2) <= 0.0);
+        b2 = (sign(pt, v2, v3) <= 0.0);
+        b3 = (sign(pt, v3, v1) <= 0.0);
 
-        return ((b1 == b2) && (b2 == b3));
+        return !(b1||b2||b3);
+
+        //return ((b1 == b2) && (b2 == b3));
     }
 
     bool triangleIntersectingVertex(OpenMesh::VertexHandle vh1, OpenMesh::VertexHandle vh2, OpenMesh::VertexHandle vh3, HalfedgeHandle he, OpenMesh::VPropHandleT<Vec2> point2D)
@@ -116,7 +118,9 @@ private:
 
         while(vh != vh1){
             Vec2 p = mesh_.property(point2D,vh);
-            if(pointInTriangle(p, mesh_.property(point2D,vh1), mesh_.property(point2D,vh2), mesh_.property(point2D,vh3))) return true;
+            if(pointInTriangle(p, mesh_.property(point2D,vh1), mesh_.property(point2D,vh2), mesh_.property(point2D,vh3))){
+                return true;
+            }
             he =  mesh_.next_halfedge_handle(he);
             vh = mesh_.to_vertex_handle(he);
         }
@@ -131,6 +135,9 @@ private:
         float dot = v1[0]*v2[0] + v1[1]*v2[1]; //dot product
         float det = v1[0]*v2[1] - v1[1]*v2[0]; //determinant
 
+        if(det==0&&false){//)if(det < 0.000000001 && det > -0.000000001){
+            return true;
+        }
         if(std::atan2(det, dot)<0){
             return false;
         }
@@ -311,6 +318,11 @@ public:
         if(edges <= 3) return true;
 
         //project 3d points to 2d
+
+        if(normal[0]+normal[1]+normal[2]<=0){
+            normal[2]=1;//makes triangualtion of holes withoutsurface solvable
+        }
+
         project3dTo2d(he, edges, normal, point2D);
 
         bool ret = triangulateT(fh_, edges, point2D);
