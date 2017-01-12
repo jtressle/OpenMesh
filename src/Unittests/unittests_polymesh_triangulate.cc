@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <Unittests/unittests_common.hh>
-#include "time.h"
+#include <time.h>
 #include <iostream>
 
 #include <OpenMesh/Tools/Utils/TriangulatorT.hh>
