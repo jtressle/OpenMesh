@@ -468,6 +468,26 @@ bool _PLYReader_::read_ascii(std::istream& _in, BaseImporter& _bi, const Options
 
 //-----------------------------------------------------------------------------
 
+/// Read a single typed value.
+void _PLYReader_::readTypedValue(OpenMesh::IO::_PLYReader_::ValueType type,
+				 std::istream& in,
+				 float& out_f, double& out_d) const
+{
+  switch (type) {
+  case OpenMesh::IO::_PLYReader_::ValueTypeFLOAT:
+  case OpenMesh::IO::_PLYReader_::ValueTypeFLOAT32:
+    readValue(type, in, out_f);
+    break;
+  case OpenMesh::IO::_PLYReader_::ValueTypeDOUBLE:
+  case OpenMesh::IO::_PLYReader_::ValueTypeFLOAT64:
+    readValue(type, in, out_d);
+    break;
+  default:
+    throw std::runtime_error("cannot read a value of unknown type");
+  }
+}
+
+
 bool _PLYReader_::read_binary(std::istream& _in, BaseImporter& _bi, bool /*_swap*/, const Options& _opt) const {
 
     // Reparse the header
@@ -476,7 +496,11 @@ bool _PLYReader_::read_binary(std::istream& _in, BaseImporter& _bi, bool /*_swap
         return false;
     }
 
-    OpenMesh::Vec3f        v, n;  // Vertex
+    ValueType v_type = ValueTypeFLOAT;
+    ValueType n_type = ValueTypeFLOAT;
+    // Vertex coordinates and normals
+    OpenMesh::Vec3d        v_d, n_d;
+    OpenMesh::Vec3f        v_f, n_f;
     OpenMesh::Vec2f        t;  // TexCoords
     BaseImporter::VHandles vhandles;
     VertexHandle           vh;
@@ -494,13 +518,21 @@ bool _PLYReader_::read_binary(std::istream& _in, BaseImporter& _bi, bool /*_swap
     for (unsigned int i = 0; i < vertexCount_ && !_in.eof(); ++i) {
         vh = _bi.add_vertex();
 
-        v[0] = 0.0;
-        v[1] = 0.0;
-        v[2] = 0.0;
+        v_d[0] = 0.0;
+        v_d[1] = 0.0;
+        v_d[2] = 0.0;
+	
+        v_f[0] = 0.0;
+        v_f[1] = 0.0;
+        v_f[2] = 0.0;
 
-        n[0] = 0.0;
-        n[1] = 0.0;
-        n[2] = 0.0;
+        n_d[0] = 0.0;
+        n_d[1] = 0.0;
+        n_d[2] = 0.0;
+
+        n_f[0] = 0.0;
+        n_f[1] = 0.0;
+        n_f[2] = 0.0;
 
         t[0] = 0.0;
         t[1] = 0.0;
@@ -513,23 +545,49 @@ bool _PLYReader_::read_binary(std::istream& _in, BaseImporter& _bi, bool /*_swap
         for (size_t propertyIndex = 0; propertyIndex < vertexProperties_.size(); ++propertyIndex) {
             switch (vertexProperties_[propertyIndex].property) {
             case XCOORD:
-                readValue(vertexProperties_[propertyIndex].value, _in, v[0]);
-                break;
+	      readTypedValue(vertexProperties_[propertyIndex].value, _in,
+			     v_f[0], v_d[0]);
+	      if (vertexProperties_[propertyIndex].value == ValueTypeFLOAT64
+		  || vertexProperties_[propertyIndex].value == ValueTypeDOUBLE)
+		v_type = ValueTypeDOUBLE;
+	      break;
             case YCOORD:
-                readValue(vertexProperties_[propertyIndex].value, _in, v[1]);
-                break;
+	      readTypedValue(vertexProperties_[propertyIndex].value, _in,
+			     v_f[1], v_d[1]);
+	      if (vertexProperties_[propertyIndex].value == ValueTypeFLOAT64
+		  || vertexProperties_[propertyIndex].value == ValueTypeDOUBLE)
+		v_type = ValueTypeDOUBLE;
+	      break;
             case ZCOORD:
-                readValue(vertexProperties_[propertyIndex].value, _in, v[2]);
-                break;
+	      readTypedValue(vertexProperties_[propertyIndex].value, _in,
+			     v_f[2], v_d[2]);
+	      if (vertexProperties_[propertyIndex].value == ValueTypeFLOAT64
+		  || vertexProperties_[propertyIndex].value == ValueTypeDOUBLE)
+		v_type = ValueTypeDOUBLE;
+	      break;
+	      
             case XNORM:
-                readValue(vertexProperties_[propertyIndex].value, _in, n[0]);
-                break;
+	      readTypedValue(vertexProperties_[propertyIndex].value, _in,
+			     n_f[0], n_d[0]);
+	      if (vertexProperties_[propertyIndex].value == ValueTypeFLOAT64
+		  || vertexProperties_[propertyIndex].value == ValueTypeDOUBLE)
+		n_type = ValueTypeDOUBLE;
+	      break;
             case YNORM:
-                readValue(vertexProperties_[propertyIndex].value, _in, n[1]);
-                break;
+	      readTypedValue(vertexProperties_[propertyIndex].value, _in,
+			     n_f[1], n_d[1]);
+	      if (vertexProperties_[propertyIndex].value == ValueTypeFLOAT64
+		  || vertexProperties_[propertyIndex].value == ValueTypeDOUBLE)
+		n_type = ValueTypeDOUBLE;
+	      break;
             case ZNORM:
-                readValue(vertexProperties_[propertyIndex].value, _in, n[2]);
-                break;
+	      readTypedValue(vertexProperties_[propertyIndex].value, _in,
+			     n_f[2], n_d[2]);
+	      if (vertexProperties_[propertyIndex].value == ValueTypeFLOAT64
+		  || vertexProperties_[propertyIndex].value == ValueTypeDOUBLE)
+		n_type = ValueTypeDOUBLE;
+	      break;
+	      
             case TEXX:
                 readValue(vertexProperties_[propertyIndex].value, _in, t[0]);
                 break;
@@ -587,9 +645,18 @@ bool _PLYReader_::read_binary(std::istream& _in, BaseImporter& _bi, bool /*_swap
 
         }
 
-        _bi.set_point(vh,v);
-        if (_opt.vertex_has_normal())
-          _bi.set_normal(vh, n);
+	if (v_type == ValueTypeDOUBLE)
+	  _bi.set_point(vh, v_d);
+	else
+	  _bi.set_point(vh, v_f);
+	
+        if (_opt.vertex_has_normal()) {
+	  if (n_type == ValueTypeDOUBLE)
+	    _bi.set_normal(vh, n_d);
+	  else
+	    _bi.set_normal(vh, n_f);
+	}
+	
         if (_opt.vertex_has_texcoord())
           _bi.set_texcoord(vh, t);
         if (_opt.vertex_has_color())

@@ -114,9 +114,11 @@ public:
 
   // Set coordinate of the given vertex. Use this function, if you created a vertex without coordinate
   virtual void set_point(VertexHandle _vh, const Vec3f& _point) = 0;
+  virtual void set_point(VertexHandle _vh, const Vec3d& _point) = 0;
 
   // set vertex normal
   virtual void set_normal(VertexHandle _vh, const Vec3f& _normal) = 0;
+  virtual void set_normal(VertexHandle _vh, const Vec3d& _normal) = 0;
 
   // set vertex color
   virtual void set_color(VertexHandle _vh, const Vec3uc& _color) = 0;

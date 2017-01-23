@@ -149,6 +149,10 @@ private:
   void readInteger(ValueType _type, std::istream& _in, int& _value) const;
   void readInteger(ValueType _type, std::istream& _in, unsigned int& _value) const;
 
+  void readTypedValue(OpenMesh::IO::_PLYReader_::ValueType type,
+		      std::istream& in,
+		      float& out_f, double& out_d) const;
+
   /// Read unsupported properties in PLY file
   void consume_input(std::istream& _in, int _count) const {
 	  _in.read(reinterpret_cast<char*>(&buff[0]), _count);

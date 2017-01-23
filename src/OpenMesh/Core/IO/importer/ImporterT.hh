@@ -199,7 +199,23 @@ public:
     mesh_.set_point(_vh,vector_cast<Point>(_point));
   }
 
+  virtual void set_point(VertexHandle _vh, const Vec3d& _point)
+  {
+    mesh_.set_point(_vh,vector_cast<Point>(_point));
+  }
+
   virtual void set_normal(VertexHandle _vh, const Vec3f& _normal)
+  {
+    if (mesh_.has_vertex_normals())
+      mesh_.set_normal(_vh, vector_cast<Normal>(_normal));
+
+    //saves normals for half edges.
+    //they will be written, when the face is added
+    if (mesh_.has_halfedge_normals())
+      halfedgeNormals_[_vh] = vector_cast<Normal>(_normal);
+  }
+  
+  virtual void set_normal(VertexHandle _vh, const Vec3d& _normal)
   {
     if (mesh_.has_vertex_normals())
       mesh_.set_normal(_vh, vector_cast<Normal>(_normal));
